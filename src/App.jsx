@@ -1,16 +1,11 @@
 import { useNavigate } from "react-router-dom"
-import HomePage from "./HomePage"
+import HomePage from "./pages/HomePage"
 
 
 function App() {
-
-  const navigate = useNavigate();
   return (
     <div>
-      <HomePage
-        navigate={navigate}
-      >
-      </HomePage>
+      <HomePage></HomePage>
     </div>
   )
 }

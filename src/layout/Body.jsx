@@ -1,10 +1,12 @@
 
+import { useNavigate } from 'react-router-dom'
 import '../style/styline.css'
 
 import { Button, Card, Col, Row } from "react-bootstrap"
 
-const Body = ({ navigate }) => {
+const Body = () => {
 
+    const navigate = useNavigate()
 
     return (
         <div className="px-3 d-flex justify-content-center align-items-center min-vh-100">
@@ -21,7 +23,8 @@ const Body = ({ navigate }) => {
                         <div className="mt-3">
                             <Button className="btn btn-light btn-outline-dark me-2 fw-bold"
                                 onClick={() => navigate("/login")}>Đăng nhập</Button>
-                            <Button className="btn btn-primary ms-2 fw-bold">Đăng ký</Button>
+                            <Button className="btn btn-primary ms-2 fw-bold"
+                                onClick={() => navigate('/register')}>Đăng ký</Button>
                         </div>
                     </div>
                 </Row>

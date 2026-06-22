@@ -1,0 +1,20 @@
+
+{
+    "users" : [
+        {
+            "id" : 1,
+            "fullName": "HenryHoang",
+            "email" : "hung231004@gmail.com",
+            "phoneNumber": "0123456789",
+            "password": "123456"
+        },
+         {
+            "id" : 2,
+            "fullName": "HenryHoang",
+            "email" : "test1@gmail.com",
+            "phoneNumber": "0123456789",
+            "password": "123456"
+        }
+        
+    ]
+}
