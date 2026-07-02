@@ -2,7 +2,7 @@ import { Button, Col, Form, InputGroup, Row } from "react-bootstrap"
 import Footer from "../layout/Footer"
 import Header from "../layout/Header"
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import InputEmail from "../components/InputEmail"
 import InputPassword from "../components/InputPassword"
 import { validateLoginForm } from "../ultils/validator"
@@ -10,13 +10,16 @@ import axios from "axios"
 
 
 // URL API BASE
-const URL_BASE = import.meta.env.VITE_URL_API_BASE
-const PORT = import.meta.env.VITE_PORT
-const API = `${URL_BASE}:${PORT}`
+const API = import.meta.env.VITE_API_BASE_URL
 
 const LoginPage = () => {
 
     const navigate = useNavigate()
+    // 
+    const location = useLocation();
+
+    const message = location?.state?.message;
+    // 
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -135,6 +138,7 @@ const LoginPage = () => {
                             </Col>
                         </Row>
                         {errors.map((err) => err.errorName === 'information' ? <p className="text-danger">{err.message}</p> : '')}
+                        {message && <p className="text-success">{message}</p>}
                         {/*__Log in Button */}
                         <Row className="mt-3 px-2">
                             <button className="btn btn-primary"

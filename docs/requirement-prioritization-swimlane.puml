@@ -1,0 +1,67 @@
+@startuml Requirement_Prioritization_Swimlane
+title Requirement Prioritization Process\n(Swimlane Diagram – Visual Paradigm)
+
+skinparam backgroundColor #FFFFFF
+skinparam swimlane {
+  BorderColor #333333
+  TitleBackgroundColor #E8EEF4
+  TitleFontSize 13
+  TitleFontStyle bold
+}
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  FontSize 11
+}
+skinparam diamond {
+  BackgroundColor #FFF8E1
+  BorderColor #333333
+}
+skinparam note {
+  BackgroundColor #F5F5F5
+  BorderColor #999999
+}
+
+|Customer Representatives|
+start
+:Identify Requirements;
+:Estimate Benefit\n(1–9);
+:Estimate Penalty\n(1–9);
+
+|Business Analyst|
+:Create Requirement List;
+:Calculate Total Value;
+
+|Developers|
+:Estimate Cost\n(1–9);
+:Estimate Technical Risk\n(1–9);
+
+|Business Analyst|
+:Calculate Priority Score;
+
+|Project Manager|
+:Review Priority Ranking;
+if (Approved?) then (Yes)
+  :Approve Prioritized\nRequirements;
+else (No)
+  :Request Reassessment;
+  |Developers|
+  :Estimate Cost\n(1–9);
+  :Estimate Technical Risk\n(1–9);
+  |Business Analyst|
+  :Calculate Priority Score;
+  |Project Manager|
+  :Review Priority Ranking;
+  if (Approved?) then (Yes)
+    :Approve Prioritized\nRequirements;
+  else (No)
+    :Request Reassessment;
+    detach
+  endif
+endif
+
+|Customer Representatives|
+:Receive Final Priority List;
+stop
+
+@enduml

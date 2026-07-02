@@ -9,6 +9,7 @@ import InputFullName from "../components/InputFullName"
 import InputPhoneNumber from "../components/InputPhoneNumber"
 import InputConfirmPassword from "../components/InputConfirmPassword"
 import { validateRegisterForm } from "../ultils/validator"
+import axios from "axios"
 
 
 // Điều Khoản sử dụng =)))))))
@@ -16,6 +17,8 @@ const TERM_OF_USE = 'https://www.google.com/search?q=%C4%91i%E1%BB%81u+kho%E1%BA
 // Chính sách bảo mật =)))))))
 const PRIVACY_POLICY = 'https://www.google.com/search?q=ch%C3%ADnh+s%C3%A1ch+b%E1%BA%A3o+m%E1%BA%ADt+cho+web+qu%E1%BA%A3n+l%C3%BD+danh+b%E1%BA%A1&oq=ch%C3%ADnh+s%C3%A1ch+b%E1%BA%A3o+m%E1%BA%ADt+cho+web+qu%E1%BA%A3n+l%C3%BD+danh+b%E1%BA%A1&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRiPAjIHCAMQIRiPAjIHCAQQIRiPAtIBCDc4MTBqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8'
 
+// URL API BASE
+const API = import.meta.env.VITE_API_BASE_URL
 
 const RegisterPage = () => {
     //____NAVIGATE
@@ -51,7 +54,60 @@ const RegisterPage = () => {
         }
         const err = validateRegisterForm(formRegister)
 
-        if (err.length > 0) setErrors(err)
+        if (err.length > 0) {
+            setErrors(err)
+        } else {
+            const getDataRegister = await fetchDataRegister(formRegister)
+            const isRegisterSuccess = getDataRegister.success && getDataRegister.data
+            if (isRegisterSuccess) {
+                navigate('/login', {
+                    state: {
+                        message: 'Register Success'
+                    }
+                })
+            } else {
+                setErrors([
+                    {
+                        errorName: 'register',
+                        message: getDataRegister.message
+                    }
+                ])
+            }
+        }
+    }
+
+    const fetchDataRegister = async ({
+        fullName,
+        email,
+        phoneNumber,
+        password,
+        confirmPassword,
+        isAcceptPolicy
+    }) => {
+        try {
+            const res = await axios.post(`${API}/users`, {
+                fullName: fullName.trim(),
+                email: email.trim(),
+                phoneNumber: phoneNumber,
+                password: password,
+                confirmPassword: confirmPassword,
+                isAcceptPolicy: isAcceptPolicy
+            })
+
+            return {
+                success: true,
+                message: 'Register Successfully',
+                data: res.data
+            }
+
+        } catch (error) {
+            return {
+                success: false,
+                status: error.response?.status,
+                message: error.message,
+                data: []
+            }
+        }
     }
 
 
@@ -126,8 +182,8 @@ const RegisterPage = () => {
                         <Row className="mt-3">
                             <div className="d-flex justify-content-baseline gap-2">
                                 <input type="checkbox" className="form-check"
-                                    value={isAcceptPolicy}
-                                    onClick={(e) => setIsAcceptPolicy((prev) => !prev)}></input>
+                                    checked={isAcceptPolicy}
+                                    onChange={(e) => setIsAcceptPolicy((prev) => !prev)}></input>
                                 <label>Tôi đồng ý với <Link to={TERM_OF_USE}>Điều khoản sử dụng</Link> và <Link to={PRIVACY_POLICY}>Chính sách bảo mật</Link></label>
                             </div>
                         </Row>
@@ -137,6 +193,7 @@ const RegisterPage = () => {
                             <button className="btn btn-primary"
                                 type="submit">Đăng ký</button>
                         </Row>
+                        {errors.map((err) => err.errorName === 'register' ? <div className="text-danger">{err.message}</div> : '')}
                     </Form>
                     <div className="text-center mt-3 py-0">hoặc</div>
                     {/*__Register Button */}
