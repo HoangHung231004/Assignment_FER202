@@ -4,10 +4,10 @@ import WorkSpace from "../layout/WorkSpace"
 
 const DashBoard = () => {
     return (
-        <Container fluid className="p-0">
+        <>
             <Row className="g-0">
                 {/* Tabbar */}
-                <Col xs={2} className="border-end min-vh-100 px-0 py-0 d-flex justify-content-center"
+                <Col xs={3} className="border-end min-vh-100 px-0 py-0 d-flex justify-content-center"
                     style={{ width: '400px' }}>
                     <Tabbar></Tabbar>
                 </Col>
@@ -16,7 +16,7 @@ const DashBoard = () => {
                     <WorkSpace></WorkSpace>
                 </Col>
             </Row>
-        </Container>
+        </>
     )
 }
 

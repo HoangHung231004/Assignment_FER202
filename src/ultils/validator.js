@@ -186,6 +186,33 @@ export const validateLoginForm = ({ email, password }) => {
     return errors;
 };
 
+export const validateEditOrUpdateForm = ({ fullName, phoneNumber, email }) => {
+    const errors = [];
+
+    const fullNameError = validateFullName(fullName)
+    const emailError = validateEmail(email);
+    const phoneError = validatePhone(phoneNumber);
+
+    if (emailError) errors.push(
+        {
+            errorName: 'email',
+            message: emailError
+        }
+    );
+    if (phoneError) errors.push(
+        {
+            errorName: 'phone',
+            message: phoneError
+        }
+    );
+    if (fullNameError) errors.push(
+        {
+            errorName: 'fullName',
+            message: fullNameError
+        }
+    );
+    return errors;
+}
 // const API = import.meta.env.VITE_API_BASE_URL
 // export const hasAccount = async ({ email, phone }) => {
 //     const error = [];

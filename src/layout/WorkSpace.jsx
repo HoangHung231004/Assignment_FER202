@@ -1,9 +1,10 @@
-import { Card, Table } from "react-bootstrap"
+import { Card, Pagination, Table } from "react-bootstrap"
 import ListCard from "./ListCard"
 import TableContact from "./TableContact"
 import { useAsyncError, useSearchParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import SettingProfile from "../pages/SettingProfile"
 
 const WorkSpace = () => {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -14,15 +15,23 @@ const WorkSpace = () => {
     // State
     const [contacts, setContacts] = useState([])
     const [groups, setGroups] = useState([])
+    //_State is edited?
+    const [isEdited, setIsEdited] = useState(false)
+    //_State is Add contact?
+    const [isAddContact, setIsAddContact] = useState(false)
+    //_State is Delete contact?
+    const [isDeleted, setIsDeleted] = useState(false)
+    //_State is Change Favourite (click star) ?
+    const [isChangeStar, setIsChangeStar] = useState(false)
     // Fetch data
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [resContacts, resGroups] = await Promise.all([
-                    axios.get(`http://localhost:9999/contacts?userId=${user.id}`),
+                    axios.get(`http://localhost:9999/contacts/${user.id}`),
                     axios.get('http://localhost:9999/groups')
                 ])
-                setContacts(resContacts.data[0].data)
+                setContacts(resContacts.data.data)
                 setGroups(resGroups.data)
             } catch (err) {
                 setError(err.message)
@@ -30,7 +39,7 @@ const WorkSpace = () => {
             }
         }
         fetchData()
-    }, [])
+    }, [isEdited, isAddContact, isDeleted, isChangeStar])
 
     // filter
     const [selectedGroup, setSelectedGroup] = useState('all');
@@ -43,9 +52,23 @@ const WorkSpace = () => {
         const matchSearch = contact.fullName.toLowerCase().includes(searchName.toLowerCase().trim()) || contact.email.toLowerCase().includes(searchName.trim().toLowerCase())
         return matchFavourite && matchGroup && matchSearch
     });
-    // console.log(selectedFavourite)
-    // console.log(selectedGroup)
-    // console.log(searchName)
+    //_____Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const CONTACTS_PER_PAGE = 10;
+    const totalPage = Math.ceil(filteredContacts.length / CONTACTS_PER_PAGE)
+    const itemsPagination = Array.from(
+        { length: totalPage },
+        ((value, index) => index + 1)
+    )
+    const startIndexContacts = (currentPage - 1) * CONTACTS_PER_PAGE
+    const endIndexContacts = startIndexContacts + CONTACTS_PER_PAGE
+    const currenContacts = filteredContacts.slice(startIndexContacts, endIndexContacts)
+
+    //__Set current page = 1 when filter active
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [selectedFavourite, searchName, selectedGroup])
+
     return (
         <div className="p-0 mt-3">
             {tab === 'contacts'
@@ -57,7 +80,20 @@ const WorkSpace = () => {
                     </ListCard>
                     {/*____Table Contact_____ */}
                     <TableContact
-                        contacts={filteredContacts}
+                        isChangeStar={isChangeStar}
+                        setIsChangeStar={setIsChangeStar}
+                        isDeleted={isDeleted}
+                        setIsDeleted={setIsDeleted}
+                        isEdited={isEdited}
+                        setIsEdited={setIsEdited}
+                        isAddContact={isAddContact}
+                        setIsAddContact={setIsAddContact}
+                        itemsPagination={itemsPagination}
+                        contacts={currenContacts}
+                        contactsRaw={contacts}
+                        currentPage={currentPage}
+                        setContacts={setContacts}
+                        setCurrentPage={setCurrentPage}
                         groups={groups}
                         selectedGroup={selectedGroup}
                         setSelectedGroup={setSelectedGroup}
@@ -66,6 +102,11 @@ const WorkSpace = () => {
                         searchName={searchName}
                         setSearchName={setSearchName}>
                     </TableContact>
+                </>
+            }
+            {tab === "setting"
+                && <>
+                    <SettingProfile></SettingProfile>
                 </>}
 
         </div>

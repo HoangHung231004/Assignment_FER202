@@ -32,31 +32,32 @@ const Tabbar = () => {
                 <span className="text-item-logo">Danh bạ</span>
             </div>
             {/*________Nhóm__________________________ */}
-            <div className="tabbar_item" style={tab === 'groups' ? ITEM_SELECTED : {}}
+            {/* <div className="tabbar_item" style={tab === 'groups' ? ITEM_SELECTED : {}}
                 onClick={() => setSearchParams("tab=groups")}>
                 <div>
                     <i className="tabbar_item_logo bi bi-folder"></i>
                 </div>
                 <span className="text-item-logo">Nhóm</span>
-            </div>
+            </div> */}
             {/*________Yêu Thích__________________________ */}
-            <div className="tabbar_item" style={tab === 'favourite' ? ITEM_SELECTED : {}}
+            {/* <div className="tabbar_item" style={tab === 'favourite' ? ITEM_SELECTED : {}}
                 onClick={() => setSearchParams("tab=favourite")}>
                 <div>
                     <i className="tabbar_item_logo bi bi-bookmark-star"></i>
                 </div>
                 <span className="text-item-logo">Yêu thích</span>
-            </div>
+            </div> */}
             {/*________Thùng rác__________________________ */}
-            <div className="tabbar_item" style={tab === 'trash' ? ITEM_SELECTED : {}}
+            {/* <div className="tabbar_item" style={tab === 'trash' ? ITEM_SELECTED : {}}
                 onClick={() => setSearchParams("tab=trash")}>
                 <div>
                     <i className="tabbar_item_logo bi bi-trash"></i>
                 </div>
                 <span className="text-item-logo">Thùng rác</span>
-            </div>
+            </div> */}
             <hr />
-            <div className="tabbar_item">
+            <div className="tabbar_item" style={tab === 'setting' ? ITEM_SELECTED : {}}
+                onClick={() => setSearchParams("tab=setting")}>
                 <div>
                     <i className="tabbar_item_logo bi bi-gear"></i>
                 </div>
