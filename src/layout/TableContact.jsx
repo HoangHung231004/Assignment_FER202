@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Pagination } from "react-bootstrap"
 import ModalDelete from "../components/ModalDelete"
 import ModalEdit from "../components/ModalEdit"
 import ModalAddContact from "../components/ModalAddContact"
+import ModalShareContact from "../components/ModalShareContact"
 import axios from "axios"
 
 const TableContact = ({
@@ -67,7 +68,32 @@ const TableContact = ({
     // ___Modal dialog edit
     const [isOpenModalEdit, setIsOpenModalEdit] = useState(false)
     //___Modal dialog add contact
-    const [isOpenModalAddContact, setIsOpenModalAddContact] = useState(false)
+    const [isOpenAddContactModal, setIsOpenAddContactModal] = useState(false)
+    //___Modal dialog share contact
+    const [isOpenModalShare, setIsOpenModalShare] = useState(false)
+    const [selectedContactIds, setSelectedContactIds] = useState([])
+
+    const selectedContacts = contactsRaw.filter((c) => selectedContactIds.includes(c.id))
+
+    const toggleSelectContact = (contactId) => {
+        setSelectedContactIds((prev) =>
+            prev.includes(contactId)
+                ? prev.filter((id) => id !== contactId)
+                : [...prev, contactId]
+        )
+    }
+
+    const toggleSelectAllOnPage = () => {
+        const pageIds = contacts.map((c) => c.id)
+        const allSelected = pageIds.every((id) => selectedContactIds.includes(id))
+        if (allSelected) {
+            setSelectedContactIds((prev) => prev.filter((id) => !pageIds.includes(id)))
+        } else {
+            setSelectedContactIds((prev) => [...new Set([...prev, ...pageIds])])
+        }
+    }
+
+    const isAllPageSelected = contacts.length > 0 && contacts.every((c) => selectedContactIds.includes(c.id))
 
     const [selectedContactEdit, setSelectedContactEdit] = useState({})
     //___Handle Edit button
@@ -77,7 +103,6 @@ const TableContact = ({
     }
 
     //___Handle Add contact
-    const [isOpenAddContactModal, setIsOpenAddContactModal] = useState(false)
     const handleAddContact = () => {
         setIsOpenAddContactModal(true)
     }
@@ -143,6 +168,17 @@ const TableContact = ({
                         <i className="p-0 m-0 bi bi-arrow-repeat"></i>
                     </button>
                 </div>
+                {/*__Share Contact */}
+                <div className="filter-item">
+                    <button
+                        className="btn btn-outline-success d-flex justify-content-center align-items-center gap-2"
+                        disabled={selectedContactIds.length === 0}
+                        onClick={() => setIsOpenModalShare(true)}
+                    >
+                        <div className="fw-bold">Chia sẻ ({selectedContactIds.length})</div>
+                        <i className="bi bi-share" style={{ fontSize: '24px' }}></i>
+                    </button>
+                </div>
                 {/*__Add Contact */}
                 <div className="filter-item">
                     <button className="btn  btn-outline-primary d-flex justify-content-center align-items-center gap-3"
@@ -156,6 +192,13 @@ const TableContact = ({
                 <table className="table table-stripped table-data mt-3">
                     <thead className="table-primary">
                         <tr>
+                            <th>
+                                <input
+                                    type="checkbox"
+                                    checked={isAllPageSelected}
+                                    onChange={toggleSelectAllOnPage}
+                                />
+                            </th>
                             <th>#</th>
                             <th style={{ cursor: 'pointer' }} onClick={(e) => handleSortedName(e)}>Họ và tên</th>
                             <th>Số điện thoại</th>
@@ -169,7 +212,14 @@ const TableContact = ({
                     <tbody>
                         {contacts.map((contact) => {
                             return (
-                                <tr>
+                                <tr key={contact.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedContactIds.includes(contact.id)}
+                                            onChange={() => toggleSelectContact(contact.id)}
+                                        />
+                                    </td>
                                     <td className="fw-bold">{contact.id}</td>
                                     <td>{contact.fullName}</td>
                                     <td>{contact.phoneNumber.map((phone) => <div>{phone}</div>)}</td>
@@ -242,6 +292,13 @@ const TableContact = ({
                 isOpenAddContactModal={isOpenAddContactModal}
                 setIsOpenAddContactModal={setIsOpenAddContactModal}>
             </ModalAddContact>
+            <ModalShareContact
+                isOpen={isOpenModalShare}
+                setIsOpen={setIsOpenModalShare}
+                selectedContacts={selectedContacts}
+                setSelectedContactIds={setSelectedContactIds}
+                setReload={setReload}
+            />
         </div >
     )
 }

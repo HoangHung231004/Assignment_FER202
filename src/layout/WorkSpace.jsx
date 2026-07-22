@@ -1,43 +1,62 @@
 import ListCard from "./ListCard"
 import TableContact from "./TableContact"
 import TableTrash from "./TableTrash"
-import { useSearchParams } from "react-router-dom"
+import NotificationShare from "./NotificationShare"
+import ModalAcceptShare from "../components/ModalAcceptShare"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import SettingProfile from "../pages/SettingProfile"
+
+const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999'
 
 const WorkSpace = () => {
     const [searchParams] = useSearchParams()
     const tab = searchParams.get("tab")
 
     const [error, setError] = useState()
-    const user = JSON.parse(localStorage.getItem("user"))
+    const navigate = useNavigate()
+    const user = JSON.parse(localStorage.getItem("user") || "null")
     // State
     const [contacts, setContacts] = useState([])
     const [trashContacts, setTrashContacts] = useState([])
     const [groups, setGroups] = useState([])
-    // Tăng reload mỗi khi thêm / sửa / xóa / khôi phục / đổi yêu thích → useEffect fetch lại data
+    const [pendingShares, setPendingShares] = useState([])
+    const [activeShare, setActiveShare] = useState(null)
+    const [isOpenAcceptModal, setIsOpenAcceptModal] = useState(false)
+    // Tăng reload mỗi khi thêm / sửa / xóa / khôi phục / đổi yêu thích / chia sẻ → useEffect fetch lại data
     const [reload, setReload] = useState(0)
 
     // Fetch data mới nhất khi reload thay đổi
     useEffect(() => {
+        if (!user?.id) {
+            navigate('/login')
+            return
+        }
         const fetchData = async () => {
             try {
-                const [resContacts, resGroups, resTrash] = await Promise.all([
-                    axios.get(`http://localhost:9999/contacts/${user.id}`),
-                    axios.get('http://localhost:9999/groups'),
-                    axios.get(`http://localhost:9999/trash/${user.id}`)
+                const [resContacts, resGroups, resTrash, resShares] = await Promise.all([
+                    axios.get(`${API}/contacts/${user.id}`),
+                    axios.get(`${API}/groups`),
+                    axios.get(`${API}/trash/${user.id}`),
+                    axios.get(`${API}/shares?toUserId=${user.id}&status=pending`)
                 ])
                 setContacts(resContacts.data.data)
                 setGroups(resGroups.data)
                 setTrashContacts(resTrash.data.data || [])
+                setPendingShares(resShares.data)
             } catch (err) {
                 setError(err.message)
                 return;
             }
         }
         fetchData()
-    }, [reload])
+    }, [reload, user?.id, navigate])
+
+    const handleOpenShare = (share) => {
+        setActiveShare(share)
+        setIsOpenAcceptModal(true)
+    }
 
     // filter
     const [selectedGroup, setSelectedGroup] = useState('all');
@@ -69,6 +88,20 @@ const WorkSpace = () => {
 
     return (
         <div className="p-0 mt-3">
+            <NotificationShare
+                pendingShares={pendingShares}
+                onOpenShare={handleOpenShare}
+            />
+
+            <ModalAcceptShare
+                key={activeShare?.id}
+                share={activeShare}
+                isOpen={isOpenAcceptModal}
+                setIsOpen={setIsOpenAcceptModal}
+                contactsRaw={contacts}
+                setReload={setReload}
+            />
+
             {tab === 'contacts'
                 && <>
                     {/*_________Card */}

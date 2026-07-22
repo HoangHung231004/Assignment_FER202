@@ -14,9 +14,10 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
     const [phoneNumber, setPhoneNumber] = useState('')
     const [email, setEmail] = useState('')
     const [groupId, setGroupId] = useState(0)
+    const [errors, setErrors] = useState([])
 
     useEffect(() => {
-        if (!selectedContactEdit) return;
+        if (!selectedContactEdit || !isOpenModalEdit) return;
 
         setFullName(selectedContactEdit.fullName ?? '');
         setPhoneNumber(
@@ -27,11 +28,9 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
         setEmail(selectedContactEdit.email ?? '');
         setGroupId(selectedContactEdit.groupId ?? 4);
         setErrors([]);
-    }, [isOpenModalEdit]);
+    }, [isOpenModalEdit, selectedContactEdit]);
 
 
-    // State Error
-    const [errors, setErrors] = useState([])
     // handle edit
     const updatedContact = async () => {
         const parsedPhoneNumbers = parsePhoneNumbers(phoneNumber)

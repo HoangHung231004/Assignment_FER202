@@ -44,7 +44,7 @@ const SettingProfile = () => {
                             </tr>
                             <tr>
                                 <td>
-                                    <InputPassword password={oldPassword} setPassWord={setOldPassword}></InputPassword>
+                                    <InputPassword password={oldPassword} setPassword={setOldPassword} showPassword={false} setShowPassword={() => {}}></InputPassword>
                                     {errors.map((er) => er.errorName === 'password' ? <div className='text-danger'>{er.message}</div> : '')}
                                 </td>
                             </tr>
