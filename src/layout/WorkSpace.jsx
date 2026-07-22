@@ -34,6 +34,7 @@ const WorkSpace = () => {
             return
         }
         const fetchData = async () => {
+            setError('')
             try {
                 const [resContacts, resGroups, resTrash, resShares] = await Promise.all([
                     axios.get(`${API}/contacts/${user.id}`),
@@ -41,13 +42,23 @@ const WorkSpace = () => {
                     axios.get(`${API}/trash/${user.id}`),
                     axios.get(`${API}/shares?toUserId=${user.id}&status=pending`)
                 ])
-                setContacts(resContacts.data.data)
-                setGroups(resGroups.data)
-                setTrashContacts(resTrash.data.data || [])
-                setPendingShares(resShares.data)
+                setContacts(Array.isArray(resContacts.data?.data) ? resContacts.data.data : [])
+                setGroups(Array.isArray(resGroups.data) ? resGroups.data : [])
+                setTrashContacts(Array.isArray(resTrash.data?.data) ? resTrash.data.data : [])
+                setPendingShares(Array.isArray(resShares.data) ? resShares.data : [])
             } catch (err) {
-                setError(err.message)
-                return;
+                const status = err.response?.status
+                if (status === 404) {
+                    setError('Không tìm thấy dữ liệu danh bạ của tài khoản. Vui lòng liên hệ quản trị viên.')
+                } else if (err.code === 'ERR_NETWORK') {
+                    setError('Không thể kết nối server. Hãy kiểm tra json-server đang chạy trên port 9999.')
+                } else {
+                    setError(err.response?.data?.message || err.message || 'Không thể tải dữ liệu.')
+                }
+                setContacts([])
+                setTrashContacts([])
+                setGroups([])
+                setPendingShares([])
             }
         }
         fetchData()
@@ -88,6 +99,23 @@ const WorkSpace = () => {
 
     return (
         <div className="p-0 mt-3">
+            {error && (
+                <div className="container mb-3">
+                    <div className="alert alert-danger d-flex align-items-center justify-content-between mb-0" role="alert">
+                        <div>
+                            <i className="bi bi-exclamation-triangle me-2"></i>
+                            {error}
+                        </div>
+                        <button
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => setReload((prev) => prev + 1)}
+                        >
+                            Thử lại
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <NotificationShare
                 pendingShares={pendingShares}
                 onOpenShare={handleOpenShare}
