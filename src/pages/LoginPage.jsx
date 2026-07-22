@@ -1,16 +1,13 @@
-import { Button, Col, Form, InputGroup, Row } from "react-bootstrap"
+import { Col, Form, Row } from "react-bootstrap"
 import Footer from "../layout/Footer"
 import Header from "../layout/Header"
 import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import InputEmail from "../components/InputEmail"
 import InputPassword from "../components/InputPassword"
 import { validateLoginForm } from "../ultils/validator"
-import axios from "axios"
+import { loginUser } from "../services/service"
 
-
-// URL API BASE
-const API = import.meta.env.VITE_API_BASE_URL
 
 const LoginPage = () => {
 
@@ -61,12 +58,7 @@ const LoginPage = () => {
 
     const fetchData = async ({ email, password }) => {
         try {
-            const res = await axios.get(`${API}/users`, {
-                params: {
-                    email: email.trim(),
-                    password: password.trim(),
-                },
-            });
+            const res = await loginUser(email.trim(), password.trim());
 
             return {
                 success: true,

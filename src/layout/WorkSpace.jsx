@@ -5,10 +5,13 @@ import NotificationShare from "./NotificationShare"
 import ModalAcceptShare from "../components/ModalAcceptShare"
 import { useSearchParams, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import axios from "axios"
 import SettingProfile from "../pages/SettingProfile"
-
-const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999'
+import {
+    getContacts,
+    getGroups,
+    getTrash,
+    getPendingShares
+} from "../services/service"
 
 const WorkSpace = () => {
     const [searchParams] = useSearchParams()
@@ -37,10 +40,10 @@ const WorkSpace = () => {
             setError('')
             try {
                 const [resContacts, resGroups, resTrash, resShares] = await Promise.all([
-                    axios.get(`${API}/contacts/${user.id}`),
-                    axios.get(`${API}/groups`),
-                    axios.get(`${API}/trash/${user.id}`),
-                    axios.get(`${API}/shares?toUserId=${user.id}&status=pending`)
+                    getContacts(user.id),
+                    getGroups(),
+                    getTrash(user.id),
+                    getPendingShares(user.id)
                 ])
                 setContacts(Array.isArray(resContacts.data?.data) ? resContacts.data.data : [])
                 setGroups(Array.isArray(resGroups.data) ? resGroups.data : [])
@@ -73,6 +76,13 @@ const WorkSpace = () => {
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [selectedFavourite, setSelectedFavourite] = useState('all');
     const [searchName, setSearchName] = useState('');
+    const [sortOrder, setSortOrder] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const getLastName = (fullName) => {
+        const parts = fullName.trim().split(' ')
+        return parts[parts.length - 1] || fullName
+    }
 
     const filteredContacts = contacts.filter((contact) => {
         const matchGroup = selectedGroup === 'all' || Number(contact.groupId) === Number(selectedGroup)
@@ -80,22 +90,59 @@ const WorkSpace = () => {
         const matchSearch = contact.fullName.toLowerCase().includes(searchName.toLowerCase().trim()) || contact.email.toLowerCase().includes(searchName.trim().toLowerCase())
         return matchFavourite && matchGroup && matchSearch
     });
+
+    const sortedContacts = [...filteredContacts]
+    if (sortOrder === 'asc') {
+        sortedContacts.sort((a, b) =>
+            getLastName(a.fullName).toLowerCase().localeCompare(getLastName(b.fullName).toLowerCase(), 'vi')
+        )
+    } else if (sortOrder === 'desc') {
+        sortedContacts.sort((a, b) =>
+            getLastName(b.fullName).toLowerCase().localeCompare(getLastName(a.fullName).toLowerCase(), 'vi')
+        )
+    }
+
+    const handleGroupFilter = (value) => {
+        setSelectedGroup(value)
+        setCurrentPage(1)
+    }
+
+    const handleFavouriteFilter = (value) => {
+        setSelectedFavourite(value)
+        setCurrentPage(1)
+    }
+
+    const handleSearchFilter = (value) => {
+        setSearchName(value)
+        setCurrentPage(1)
+    }
+
+    const handleResetFilters = () => {
+        setSelectedGroup('all')
+        setSelectedFavourite('all')
+        setSearchName('')
+        setSortOrder(null)
+        setCurrentPage(1)
+    }
+
+    const handleToggleSort = () => {
+        setSortOrder((prev) => {
+            if (prev === null) return 'asc'
+            if (prev === 'asc') return 'desc'
+            return 'asc'
+        })
+        setCurrentPage(1)
+    }
     //_____Pagination
-    const [currentPage, setCurrentPage] = useState(1);
     const CONTACTS_PER_PAGE = 10;
-    const totalPage = Math.ceil(filteredContacts.length / CONTACTS_PER_PAGE)
+    const totalPage = Math.ceil(sortedContacts.length / CONTACTS_PER_PAGE)
     const itemsPagination = Array.from(
         { length: totalPage },
         ((value, index) => index + 1)
     )
     const startIndexContacts = (currentPage - 1) * CONTACTS_PER_PAGE
     const endIndexContacts = startIndexContacts + CONTACTS_PER_PAGE
-    const currenContacts = filteredContacts.slice(startIndexContacts, endIndexContacts)
-
-    //__Set current page = 1 when filter active
-    useEffect(() => {
-        setCurrentPage(1)
-    }, [selectedFavourite, searchName, selectedGroup])
+    const currenContacts = sortedContacts.slice(startIndexContacts, endIndexContacts)
 
     return (
         <div className="p-0 mt-3">
@@ -144,15 +191,17 @@ const WorkSpace = () => {
                         contacts={currenContacts}
                         contactsRaw={contacts}
                         currentPage={currentPage}
-                        setContacts={setContacts}
                         setCurrentPage={setCurrentPage}
                         groups={groups}
                         selectedGroup={selectedGroup}
-                        setSelectedGroup={setSelectedGroup}
+                        setSelectedGroup={handleGroupFilter}
                         selectedFavourite={selectedFavourite}
-                        setSelectedFavourite={setSelectedFavourite}
+                        setSelectedFavourite={handleFavouriteFilter}
                         searchName={searchName}
-                        setSearchName={setSearchName}>
+                        setSearchName={handleSearchFilter}
+                        sortOrder={sortOrder}
+                        onToggleSort={handleToggleSort}
+                        onResetFilters={handleResetFilters}>
                     </TableContact>
                 </>
             }

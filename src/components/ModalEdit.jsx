@@ -1,37 +1,25 @@
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import InputFullName from './InputFullName';
 import InputPhoneNumber from './InputPhoneNumber';
 import InputEmail from './InputEmail';
-import { Accordion } from 'react-bootstrap';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { updateContacts } from '../services/service';
 import { findDuplicatePhonesInContacts, parsePhoneNumbers, validateEditOrUpdateForm } from '../ultils/validator';
 
+const getInitialPhoneNumber = (contact) => {
+    if (Array.isArray(contact?.phoneNumber)) {
+        return contact.phoneNumber.join(' ')
+    }
+    return contact?.phoneNumber ?? ''
+}
+
 const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedContactEdit, setReload }) => {
-    // const selectedContactId = selectedContactEdit.id
-    const [fullName, setFullName] = useState('')
-    const [phoneNumber, setPhoneNumber] = useState('')
-    const [email, setEmail] = useState('')
-    const [groupId, setGroupId] = useState(0)
+    const [fullName, setFullName] = useState(() => selectedContactEdit?.fullName ?? '')
+    const [phoneNumber, setPhoneNumber] = useState(() => getInitialPhoneNumber(selectedContactEdit))
+    const [email, setEmail] = useState(() => selectedContactEdit?.email ?? '')
+    const [groupId, setGroupId] = useState(() => selectedContactEdit?.groupId ?? 4)
     const [errors, setErrors] = useState([])
 
-    useEffect(() => {
-        if (!selectedContactEdit || !isOpenModalEdit) return;
-
-        setFullName(selectedContactEdit.fullName ?? '');
-        setPhoneNumber(
-            Array.isArray(selectedContactEdit.phoneNumber)
-                ? selectedContactEdit.phoneNumber.join(" ")
-                : (selectedContactEdit.phoneNumber ?? '')
-        );
-        setEmail(selectedContactEdit.email ?? '');
-        setGroupId(selectedContactEdit.groupId ?? 4);
-        setErrors([]);
-    }, [isOpenModalEdit, selectedContactEdit]);
-
-
-    // handle edit
     const updatedContact = async () => {
         const parsedPhoneNumbers = parsePhoneNumbers(phoneNumber)
         const newInfor = {
@@ -71,7 +59,6 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
                 ]);
             }
             if (!isDuplicateEmail && duplicatePhones.length === 0) {
-                // new contacts info to update
                 const updatedContacts = contactsRaw.map((contact) => Number(contact.id) === Number(selectedContactEdit.id)
                     ? {
                         ...contact,
@@ -80,21 +67,16 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
                     : contact)
 
                 try {
-                    await axios.patch(`http://localhost:9999/contacts/${userLogin.id}`, {
-                        data: updatedContacts
-                    })
-                } catch (error) {
-                    console.log(error.message)
+                    await updateContacts(userLogin.id, updatedContacts)
+                    setIsOpenModalEdit(false)
+                    setReload((prev) => prev + 1)
+                } catch {
+                    setErrors([{ errorName: 'submit', message: 'Không thể cập nhật liên hệ. Vui lòng thử lại.' }])
                 }
-                // close modal
-                setIsOpenModalEdit(false)
-                // Tăng reload để WorkSpace useEffect fetch lại data mới nhất
-                setReload((prev) => prev + 1)
             }
         } else {
             setErrors(validationErrors)
         }
-
     }
 
     return (
@@ -111,7 +93,6 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
             </Modal.Header>
             <Modal.Body>
                 <h4>Nhập thông tin</h4>
-                {/* {console.log(typeof selectedContactEdit.fullName)} */}
                 <table className='table'>
                     <tbody>
                         <tr>
@@ -136,19 +117,20 @@ const ModalEdit = ({ contactsRaw, isOpenModalEdit, setIsOpenModalEdit, selectedC
                             <td>
                                 <div className='fw-bold'>Phân loại quan hệ</div>
                                 <div className='d-flex'>
-                                    <button className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(1)}>Gia đình</button>
-                                    <button className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(2)}>Bạn bè</button>
-                                    <button className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(3)}>Công việc</button>
-                                    <button className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(4)}>Khác</button>
+                                    <button type="button" className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(1)}>Gia đình</button>
+                                    <button type="button" className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(2)}>Bạn bè</button>
+                                    <button type="button" className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(3)}>Công việc</button>
+                                    <button type="button" className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(4)}>Khác</button>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                {errors.map((er) => er.errorName === 'submit' ? <div className='text-danger'>{er.message}</div> : '')}
             </Modal.Body>
             <Modal.Footer>
-                <button onClick={() => setIsOpenModalEdit(false)} className='btn btn-outline-dark'>Hủy</button>
-                <button onClick={() => updatedContact()} className='btn btn-outline-warning'>Cập nhật</button>
+                <button type="button" onClick={() => setIsOpenModalEdit(false)} className='btn btn-outline-dark'>Hủy</button>
+                <button type="button" onClick={updatedContact} className='btn btn-outline-warning'>Cập nhật</button>
             </Modal.Footer>
         </Modal >
     );

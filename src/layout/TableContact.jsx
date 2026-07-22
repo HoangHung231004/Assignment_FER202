@@ -4,11 +4,10 @@ import ModalDelete from "../components/ModalDelete"
 import ModalEdit from "../components/ModalEdit"
 import ModalAddContact from "../components/ModalAddContact"
 import ModalShareContact from "../components/ModalShareContact"
-import axios from "axios"
+import { updateContacts } from "../services/service"
 
 const TableContact = ({
     setReload,
-    setContacts,
     contactsRaw,
     itemsPagination,
     currentPage,
@@ -20,7 +19,10 @@ const TableContact = ({
     selectedFavourite,
     setSelectedFavourite,
     searchName,
-    setSearchName
+    setSearchName,
+    sortOrder,
+    onToggleSort,
+    onResetFilters
 }) => {
 
     const formatDate = (ISODate) => {
@@ -37,31 +39,8 @@ const TableContact = ({
         return <div className="text-center text-group" style={{ background: 'black', color: 'white' }}>Gia đình</div>
     }
 
-    //___Sort by name
-    const [isSorted, setIsSorted] = useState(false)
-    const handleSortedName = (e) => {
-        e.preventDefault()
-        if (isSorted === true) {
-            const arr = contactsRaw.toSorted((a, b) => {
-                const arrLengthName = a.fullName.split(" ").length
-                const nameA = a.fullName.split(" ")[arrLengthName - 1]
-                const arrLengthNameB = b.fullName.split(" ").length
-                const nameB = b.fullName.split(" ")[arrLengthNameB - 1]
-                return nameA.toLowerCase().localeCompare(nameB.toLowerCase(), "vi")
-            })
-            setContacts(arr)
-        } else {
-            const arr = contactsRaw.toSorted((a, b) => {
-                const arrLengthName = a.fullName.split(" ").length
-                const nameA = a.fullName.split(" ")[arrLengthName - 1]
-                const arrLengthNameB = b.fullName.split(" ").length
-                const nameB = b.fullName.split(" ")[arrLengthNameB - 1]
-                return nameB.toLowerCase().localeCompare(nameA.toLowerCase(), "vi")
-            })
-            setContacts(arr)
-        }
-        setIsSorted((prev) => !prev)
-    }
+    //___Sort by name — xử lý ở WorkSpace, không ghi đè contacts
+    const sortIcon = sortOrder === 'asc' ? 'bi-sort-alpha-down' : sortOrder === 'desc' ? 'bi-sort-alpha-up' : 'bi-arrow-down-up'
 
     // ___Modal dialog delete
     const [isOpenModalDelete, setIsOpenModalDelete] = useState(false)
@@ -69,9 +48,11 @@ const TableContact = ({
     const [isOpenModalEdit, setIsOpenModalEdit] = useState(false)
     //___Modal dialog add contact
     const [isOpenAddContactModal, setIsOpenAddContactModal] = useState(false)
+    const [addContactKey, setAddContactKey] = useState(0)
     //___Modal dialog share contact
     const [isOpenModalShare, setIsOpenModalShare] = useState(false)
     const [selectedContactIds, setSelectedContactIds] = useState([])
+    const [error, setError] = useState('')
 
     const selectedContacts = contactsRaw.filter((c) => selectedContactIds.includes(c.id))
 
@@ -104,6 +85,7 @@ const TableContact = ({
 
     //___Handle Add contact
     const handleAddContact = () => {
+        setAddContactKey((prev) => prev + 1)
         setIsOpenAddContactModal(true)
     }
 
@@ -116,6 +98,8 @@ const TableContact = ({
     //__Handle Change Star
     const handleChangeStar = async (contact) => {
         const user = JSON.parse(localStorage.getItem("user"))
+        setError('')
+
         const newDatasToUpdated = contactsRaw.map((c) => c.id === contact.id
             ? {
                 ...c,
@@ -124,16 +108,26 @@ const TableContact = ({
             }
             :
             c)
-        await axios.patch(`http://localhost:9999/contacts/${user.id}`, {
-            data: newDatasToUpdated
-        })
-        setReload((prev) => prev + 1)
-        setSelectedContactEdit(contact)
+
+        try {
+            await updateContacts(user.id, newDatasToUpdated)
+            setReload((prev) => prev + 1)
+            setSelectedContactEdit(contact)
+        } catch {
+            setError('Không thể cập nhật yêu thích. Vui lòng thử lại.')
+        }
     }
 
 
     return (
         <div className="mt-3 p-0 work-space-contact border">
+            {error && (
+                <div className="container mt-3 mb-0">
+                    <div className="alert alert-danger mb-0" role="alert">
+                        {error}
+                    </div>
+                </div>
+            )}
             {/* ____Filter */}
             <div className="d-flex align-item-baseline filter-space container">
                 {/*____Group */}
@@ -164,7 +158,15 @@ const TableContact = ({
                 </div>
                 {/*__Reset */}
                 <div className="filter-item">
-                    <button className="w-75 btn btn-danger btn-outline-black text-center d-flex justify-content-center align-items-center px-3">
+                    <button
+                        type="button"
+                        className="w-75 btn btn-danger btn-outline-black text-center d-flex justify-content-center align-items-center px-3"
+                        onClick={() => {
+                            onResetFilters()
+                            setSelectedContactIds([])
+                        }}
+                        title="Reset bộ lọc"
+                    >
                         <i className="p-0 m-0 bi bi-arrow-repeat"></i>
                     </button>
                 </div>
@@ -200,7 +202,9 @@ const TableContact = ({
                                 />
                             </th>
                             <th>#</th>
-                            <th style={{ cursor: 'pointer' }} onClick={(e) => handleSortedName(e)}>Họ và tên</th>
+                            <th style={{ cursor: 'pointer' }} onClick={onToggleSort}>
+                                Họ và tên <i className={`bi ${sortIcon} ms-1`}></i>
+                            </th>
                             <th>Số điện thoại</th>
                             <th>Email</th>
                             <th>Nhóm</th>
@@ -280,6 +284,7 @@ const TableContact = ({
             >
             </ModalDelete>
             <ModalEdit
+                key={selectedContactEdit?.id ?? 'edit'}
                 setReload={setReload}
                 contactsRaw={contactsRaw}
                 isOpenModalEdit={isOpenModalEdit}
@@ -287,6 +292,7 @@ const TableContact = ({
                 selectedContactEdit={selectedContactEdit}>
             </ModalEdit>
             <ModalAddContact
+                key={addContactKey}
                 setReload={setReload}
                 contactsRaw={contactsRaw}
                 isOpenAddContactModal={isOpenAddContactModal}

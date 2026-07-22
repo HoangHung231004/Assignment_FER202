@@ -9,7 +9,7 @@ import InputFullName from "../components/InputFullName"
 import InputPhoneNumber from "../components/InputPhoneNumber"
 import InputConfirmPassword from "../components/InputConfirmPassword"
 import { validateRegisterForm } from "../ultils/validator"
-import axios from "axios"
+import { createUser, createContacts, createTrash } from "../services/service"
 
 
 // Điều Khoản sử dụng =)))))))
@@ -17,8 +17,6 @@ const TERM_OF_USE = 'https://www.google.com/search?q=%C4%91i%E1%BB%81u+kho%E1%BA
 // Chính sách bảo mật =)))))))
 const PRIVACY_POLICY = 'https://www.google.com/search?q=ch%C3%ADnh+s%C3%A1ch+b%E1%BA%A3o+m%E1%BA%ADt+cho+web+qu%E1%BA%A3n+l%C3%BD+danh+b%E1%BA%A1&oq=ch%C3%ADnh+s%C3%A1ch+b%E1%BA%A3o+m%E1%BA%ADt+cho+web+qu%E1%BA%A3n+l%C3%BD+danh+b%E1%BA%A1&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRiPAjIHCAMQIRiPAjIHCAQQIRiPAtIBCDc4MTBqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8'
 
-// URL API BASE
-const API = import.meta.env.VITE_API_BASE_URL
 
 const RegisterPage = () => {
     //____NAVIGATE
@@ -85,7 +83,7 @@ const RegisterPage = () => {
         isAcceptPolicy
     }) => {
         try {
-            const res = await axios.post(`${API}/users`, {
+            const res = await createUser({
                 fullName: fullName.trim(),
                 email: email.trim(),
                 phoneNumber: phoneNumber,
@@ -93,6 +91,11 @@ const RegisterPage = () => {
                 confirmPassword: confirmPassword,
                 isAcceptPolicy: isAcceptPolicy
             })
+
+            await Promise.all([
+                createContacts(res.data.id),
+                createTrash(res.data.id)
+            ])
 
             return {
                 success: true,
@@ -182,7 +185,7 @@ const RegisterPage = () => {
                             <div className="d-flex justify-content-baseline gap-2">
                                 <input type="checkbox" className="form-check"
                                     checked={isAcceptPolicy}
-                                    onChange={(e) => setIsAcceptPolicy((prev) => !prev)}></input>
+                                    onChange={() => setIsAcceptPolicy((prev) => !prev)}></input>
                                 <label>Tôi đồng ý với <Link to={TERM_OF_USE}>Điều khoản sử dụng</Link> và <Link to={PRIVACY_POLICY}>Chính sách bảo mật</Link></label>
                             </div>
                         </Row>

@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
-import axios from 'axios'
-
-const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999'
+import { updateContacts, updateShare } from '../services/service'
+import { findShareContactConflicts } from '../ultils/validator'
 
 const ModalAcceptShare = ({ share, isOpen, setIsOpen, contactsRaw, setReload }) => {
     const [selectedIds, setSelectedIds] = useState(() => share?.contacts.map((c) => c.id) ?? [])
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const handleClose = () => {
         setIsOpen(false)
         setSelectedIds([])
+        setError('')
     }
 
     const toggleContact = (contactId) => {
@@ -51,18 +53,18 @@ const ModalAcceptShare = ({ share, isOpen, setIsOpen, contactsRaw, setReload }) 
             nextId += 1
         })
 
-        await axios.patch(`${API}/contacts/${user.id}`, { data: updatedContacts })
+        await updateContacts(user.id, updatedContacts)
     }
 
-    const updateShare = async (status, remainingContacts) => {
-        await axios.patch(`${API}/shares/${share.id}`, {
+    const patchShare = async (status, remainingContacts) => {
+        await updateShare(share.id, {
             status,
             contacts: remainingContacts
         })
     }
 
     const handleAccept = async (acceptAll = false) => {
-        if (!share) return
+        if (!share || loading) return
 
         const idsToAccept = acceptAll
             ? share.contacts.map((c) => c.id)
@@ -71,23 +73,46 @@ const ModalAcceptShare = ({ share, isOpen, setIsOpen, contactsRaw, setReload }) 
         if (idsToAccept.length === 0) return
 
         const acceptedContacts = share.contacts.filter((c) => idsToAccept.includes(c.id))
+        const conflicts = findShareContactConflicts(acceptedContacts, contactsRaw)
+
+        if (conflicts.length > 0) {
+            setError(conflicts.join('. '))
+            return
+        }
+
         const remainingContacts = share.contacts.filter((c) => !idsToAccept.includes(c.id))
 
-        await addContactsToUser(acceptedContacts)
-        await updateShare(
-            remainingContacts.length === 0 ? 'accepted' : 'pending',
-            remainingContacts
-        )
-
-        setReload((prev) => prev + 1)
-        handleClose()
+        setError('')
+        setLoading(true)
+        try {
+            await addContactsToUser(acceptedContacts)
+            await patchShare(
+                remainingContacts.length === 0 ? 'accepted' : 'pending',
+                remainingContacts
+            )
+            setReload((prev) => prev + 1)
+            handleClose()
+        } catch {
+            setError('Không thể chấp nhận liên hệ. Vui lòng thử lại.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleReject = async () => {
-        if (!share) return
-        await updateShare('rejected', [])
-        setReload((prev) => prev + 1)
-        handleClose()
+        if (!share || loading) return
+
+        setError('')
+        setLoading(true)
+        try {
+            await patchShare('rejected', [])
+            setReload((prev) => prev + 1)
+            handleClose()
+        } catch {
+            setError('Không thể từ chối chia sẻ. Vui lòng thử lại.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (!share) return null
@@ -101,6 +126,11 @@ const ModalAcceptShare = ({ share, isOpen, setIsOpen, contactsRaw, setReload }) 
                 <p>
                     <strong>{share.fromUserName}</strong> muốn chia sẻ {share.contacts.length} liên hệ với bạn.
                 </p>
+                {error && (
+                    <div className="alert alert-danger mb-3" role="alert">
+                        {error}
+                    </div>
+                )}
                 <table className="table table-striped mt-3">
                     <thead className="table-primary">
                         <tr>
@@ -139,18 +169,26 @@ const ModalAcceptShare = ({ share, isOpen, setIsOpen, contactsRaw, setReload }) 
                 </table>
             </Modal.Body>
             <Modal.Footer className="d-flex justify-content-between">
-                <button className="btn btn-outline-danger" onClick={handleReject}>
+                <button
+                    className="btn btn-outline-danger"
+                    disabled={loading}
+                    onClick={handleReject}
+                >
                     Từ chối nhận
                 </button>
                 <div className="d-flex gap-2">
                     <button
                         className="btn btn-outline-success"
-                        disabled={selectedIds.length === 0}
+                        disabled={loading || selectedIds.length === 0}
                         onClick={() => handleAccept(false)}
                     >
                         Chấp nhận
                     </button>
-                    <button className="btn btn-success" onClick={() => handleAccept(true)}>
+                    <button
+                        className="btn btn-success"
+                        disabled={loading}
+                        onClick={() => handleAccept(true)}
+                    >
                         Chấp nhận tất cả
                     </button>
                 </div>

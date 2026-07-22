@@ -1,10 +1,12 @@
 import { useState } from "react"
-import axios from "axios"
 import Modal from "react-bootstrap/Modal"
+import { updateContacts, updateTrash } from "../services/service"
 
 const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
     const [isOpenModalDelete, setIsOpenModalDelete] = useState(false)
     const [selectedDelete, setSelectedDelete] = useState(null)
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const formatDate = (ISODate) => {
         if (!ISODate) return ""
@@ -23,29 +25,33 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
 
     const handleRestore = async (contact) => {
         const user = JSON.parse(localStorage.getItem("user"))
+        setError('')
+        setLoading(true)
 
-        // Nếu id đã tồn tại trong danh bạ thì tạo id mới
-        const existingIds = contactsRaw.map((c) => c.id)
-        let restoredContact = { ...contact }
-        delete restoredContact.deletedAt
-        if (existingIds.includes(contact.id)) {
-            const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0
-            restoredContact = { ...restoredContact, id: maxId + 1 }
+        try {
+            // Nếu id đã tồn tại trong danh bạ thì tạo id mới
+            const existingIds = contactsRaw.map((c) => c.id)
+            let restoredContact = { ...contact }
+            delete restoredContact.deletedAt
+            if (existingIds.includes(contact.id)) {
+                const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0
+                restoredContact = { ...restoredContact, id: maxId + 1 }
+            }
+            restoredContact.updatedAt = new Date().toISOString()
+
+            const newTrash = trashContacts.filter((c) => c.id !== contact.id)
+
+            await Promise.all([
+                updateContacts(user.id, [...contactsRaw, restoredContact]),
+                updateTrash(user.id, newTrash)
+            ])
+
+            setReload((prev) => prev + 1)
+        } catch {
+            setError('Không thể khôi phục liên hệ. Vui lòng thử lại.')
+        } finally {
+            setLoading(false)
         }
-        restoredContact.updatedAt = new Date().toISOString()
-
-        const newTrash = trashContacts.filter((c) => c.id !== contact.id)
-
-        await Promise.all([
-            axios.patch(`http://localhost:9999/contacts/${user.id}`, {
-                data: [...contactsRaw, restoredContact]
-            }),
-            axios.patch(`http://localhost:9999/trash/${user.id}`, {
-                data: newTrash
-            })
-        ])
-
-        setReload((prev) => prev + 1)
     }
 
     const openPermanentDelete = (contact) => {
@@ -55,17 +61,24 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
 
     // Xóa hoàn toàn khỏi thùng rác — không thể khôi phục
     const handlePermanentDelete = async () => {
-        if (!selectedDelete) return
+        if (!selectedDelete || loading) return
         const user = JSON.parse(localStorage.getItem("user"))
-        const newTrash = trashContacts.filter((c) => c.id !== selectedDelete.id)
+        setError('')
+        setLoading(true)
 
-        await axios.patch(`http://localhost:9999/trash/${user.id}`, {
-            data: newTrash
-        })
+        try {
+            const newTrash = trashContacts.filter((c) => c.id !== selectedDelete.id)
 
-        setIsOpenModalDelete(false)
-        setSelectedDelete(null)
-        setReload((prev) => prev + 1)
+            await updateTrash(user.id, newTrash)
+
+            setIsOpenModalDelete(false)
+            setSelectedDelete(null)
+            setReload((prev) => prev + 1)
+        } catch {
+            setError('Không thể xóa hoàn toàn liên hệ. Vui lòng thử lại.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -73,6 +86,11 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
             <div className="container mt-3 mb-2">
                 <h5 className="fw-bold">Thùng rác</h5>
                 <p className="text-muted mb-0">Các liên hệ đã xóa. Nhấn khôi phục để đưa trở lại danh bạ, hoặc xóa hoàn toàn để không thể khôi phục.</p>
+                {error && (
+                    <div className="alert alert-danger mt-3 mb-0" role="alert">
+                        {error}
+                    </div>
+                )}
             </div>
             <div className="container">
                 <table className="table table-stripped table-data mt-3">
@@ -106,6 +124,7 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                                     <td className="d-flex gap-2">
                                         <button
                                             className="btn btn-outline-success"
+                                            disabled={loading}
                                             onClick={() => handleRestore(contact)}
                                         >
                                             <i className="bi bi-arrow-counterclockwise me-1"></i>
@@ -113,6 +132,7 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                                         </button>
                                         <button
                                             className="btn btn-outline-danger"
+                                            disabled={loading}
                                             onClick={() => openPermanentDelete(contact)}
                                         >
                                             <i className="bi bi-trash me-1"></i>
@@ -152,6 +172,7 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                     <button
                         onClick={handlePermanentDelete}
                         className="btn btn-outline-danger"
+                        disabled={loading}
                     >
                         Xóa hoàn toàn
                     </button>

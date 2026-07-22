@@ -1,39 +1,38 @@
-import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
+import { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import InputFullName from './InputFullName';
 import InputPhoneNumber from './InputPhoneNumber';
 import InputEmail from './InputEmail';
-import axios from 'axios';
+import { updateContacts } from '../services/service';
 import { findDuplicatePhonesInContacts, parsePhoneNumbers, validateEditOrUpdateForm } from '../ultils/validator';
 
 const ModalAddContact = ({ isOpenAddContactModal, setIsOpenAddContactModal, setReload, contactsRaw }) => {
-
-    // State
     const [fullName, setFullName] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
     const [email, setEmail] = useState('')
     const [groupId, setGroupId] = useState(4)
-    // State Error
     const [errors, setErrors] = useState([])
 
-    useEffect(() => {
+    const resetForm = () => {
         setFullName('')
         setErrors([])
         setPhoneNumber('')
         setEmail('')
         setGroupId(4)
-    }, [isOpenAddContactModal])
-    //_handle add contact
+    }
+
+    const handleClose = () => {
+        resetForm()
+        setIsOpenAddContactModal(false)
+    }
+
     const handleAddContact = async () => {
         const user = JSON.parse(localStorage.getItem("user"))
 
         try {
-            // get new id
             const newId = contactsRaw.length === 0
                 ? 1
                 : contactsRaw.toSorted((a, b) => b.id - a.id)[0].id + 1
-            // console.log(maxId)
             const parsedPhoneNumbers = parsePhoneNumbers(phoneNumber)
             const newContact = {
                 id: newId,
@@ -70,28 +69,26 @@ const ModalAddContact = ({ isOpenAddContactModal, setIsOpenAddContactModal, setR
                     ]);
                 }
                 if (!isDuplicateEmail && duplicatePhones.length === 0) {
-                    // updated contacts
                     const updatedContacts = [...contactsRaw, newContact]
-                    console.log(updatedContacts)
-                    await axios.patch(`http://localhost:9999/contacts/${user.id}`, { data: updatedContacts })
+                    await updateContacts(user.id, updatedContacts)
                     setReload((prev) => prev + 1)
-                    // close modal
-                    setIsOpenAddContactModal((prev) => !prev)
-                    setErrors([])
+                    handleClose()
                 }
             } else {
                 setErrors(validationErrors)
             }
-        } catch (error) {
-            console.log(error.message)
+        } catch {
+            setErrors([{ errorName: 'submit', message: 'Không thể thêm liên hệ. Vui lòng thử lại.' }])
         }
     }
+
     return (
         <Modal
             show={isOpenAddContactModal}
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
+            onHide={handleClose}
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
@@ -100,7 +97,6 @@ const ModalAddContact = ({ isOpenAddContactModal, setIsOpenAddContactModal, setR
             </Modal.Header>
             <Modal.Body>
                 <h4>Nhập thông tin</h4>
-                {/* {console.log(typeof selectedContactEdit.fullName)} */}
                 <table className='table'>
                     <tbody>
                         <tr>
@@ -125,19 +121,20 @@ const ModalAddContact = ({ isOpenAddContactModal, setIsOpenAddContactModal, setR
                             <td>
                                 <div className='fw-bold'>Phân loại quan hệ</div>
                                 <div className='d-flex'>
-                                    <button className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(1)}>Gia đình</button>
-                                    <button className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(2)}>Bạn bè</button>
-                                    <button className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(3)}>Công việc</button>
-                                    <button className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(4)}>Khác</button>
+                                    <button type="button" className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(1)}>Gia đình</button>
+                                    <button type="button" className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(2)}>Bạn bè</button>
+                                    <button type="button" className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(3)}>Công việc</button>
+                                    <button type="button" className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(4)}>Khác</button>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                {errors.map((er) => er.errorName === 'submit' ? <div className='text-danger'>{er.message}</div> : '')}
             </Modal.Body>
             <Modal.Footer>
-                <button onClick={() => setIsOpenAddContactModal(false)} className='btn btn-outline-danger'>Hủy</button>
-                <button onClick={() => handleAddContact()} className='btn btn-outline-success'>Thêm liên hệ</button>
+                <button type="button" onClick={handleClose} className='btn btn-outline-danger'>Hủy</button>
+                <button type="button" onClick={handleAddContact} className='btn btn-outline-success'>Thêm liên hệ</button>
             </Modal.Footer>
         </Modal>
     );

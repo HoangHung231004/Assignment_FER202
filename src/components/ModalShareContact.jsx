@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import Modal from 'react-bootstrap/Modal'
-import axios from 'axios'
 import { validateEmail } from '../ultils/validator'
-
-const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9999'
+import { createShare, getUsersByEmail } from '../services/service'
 
 const ModalShareContact = ({
     isOpen,
@@ -37,7 +35,7 @@ const ModalShareContact = ({
         const targetEmail = email.trim()
 
         try {
-            const resUsers = await axios.get(`${API}/users?email=${targetEmail}`)
+            const resUsers = await getUsersByEmail(targetEmail)
             const targetUser = resUsers.data[0]
 
             if (!targetUser) {
@@ -60,7 +58,7 @@ const ModalShareContact = ({
                 createdAt: new Date().toISOString()
             }
 
-            await axios.post(`${API}/shares`, shareData)
+            await createShare(shareData)
 
             setSuccess('Đã chia sẻ thành công')
             setSelectedContactIds([])

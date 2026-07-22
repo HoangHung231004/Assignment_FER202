@@ -1,4 +1,4 @@
-import axios from "axios";
+import { getUsersByEmail, getUsersByPhoneNumber } from "../services/service";
 
 export const validateEmail = (email) => {
     const value = email.trim();
@@ -86,7 +86,6 @@ export const validateConfirmPassword = (password, confirmPassword) => {
 
 export const validateRegisterForm = async ({ fullName, email, phoneNumber, password, confirmPassword, isAcceptPolicy }) => {
     const errors = [];
-    const API = import.meta.env.VITE_API_BASE_URL;
     const fullNameError = validateFullName(fullName);
     const emailError = validateEmail(email);
     const phoneError = validatePhone(phoneNumber);
@@ -107,7 +106,7 @@ export const validateRegisterForm = async ({ fullName, email, phoneNumber, passw
         });
     } else {
         try {
-            const isExistEmail = await axios.get(`${API}/users?email=${email}`)
+            const isExistEmail = await getUsersByEmail(email)
             if (isExistEmail.data.length > 0) {
                 errors.push({
                     errorName: 'email',
@@ -126,7 +125,7 @@ export const validateRegisterForm = async ({ fullName, email, phoneNumber, passw
         });
     } else {
         try {
-            const isExistPhone = await axios.get(`${API}/users?phoneNumber=${phoneNumber}`)
+            const isExistPhone = await getUsersByPhoneNumber(phoneNumber)
             if (isExistPhone.data.length > 0) {
                 errors.push({
                     errorName: 'phoneNumber',
@@ -253,6 +252,36 @@ export const findDuplicatePhonesInContacts = (phoneInput, contacts, excludeConta
     return duplicates;
 };
 
+export const findShareContactConflicts = (contactsToAdd, existingContacts) => {
+    const conflicts = [];
+
+    contactsToAdd.forEach((contact) => {
+        const emailTrimmed = (contact.email ?? '').trim();
+        if (emailTrimmed) {
+            const duplicateEmail = existingContacts.find(
+                (c) => (c.email ?? '').trim() === emailTrimmed
+            );
+            if (duplicateEmail) {
+                conflicts.push(
+                    `${contact.fullName}: Email đã được lưu cho ${duplicateEmail.fullName.trim()}`
+                );
+            }
+        }
+
+        const phoneInput = Array.isArray(contact.phoneNumber)
+            ? contact.phoneNumber.join(' ')
+            : (contact.phoneNumber ?? '');
+        const duplicatePhones = findDuplicatePhonesInContacts(phoneInput, existingContacts);
+        duplicatePhones.forEach(({ phone, contactName }) => {
+            conflicts.push(
+                `${contact.fullName}: Số ${phone} đã được lưu cho ${contactName}`
+            );
+        });
+    });
+
+    return conflicts;
+};
+
 export const validateEditOrUpdateForm = ({ fullName, phoneNumber, email }) => {
     const errors = [];
 
@@ -283,8 +312,74 @@ export const validateEditOrUpdateForm = ({ fullName, phoneNumber, email }) => {
 
     return errors;
 };
-// const API = import.meta.env.VITE_API_BASE_URL
-// export const hasAccount = async ({ email, phone }) => {
-//     const error = [];
 
-// }
+export const validateUpdateProfileForm = async ({
+    fullName,
+    email,
+    phoneNumber,
+    oldPassword,
+    newPassword,
+    confirmPassword,
+    currentPassword,
+    userId
+}) => {
+    const errors = [];
+
+    const fullNameError = validateFullName(fullName);
+    const emailError = validateEmail(email);
+    const phoneError = validatePhone(phoneNumber);
+
+    if (fullNameError) {
+        errors.push({ errorName: 'fullName', message: fullNameError });
+    }
+
+    if (emailError) {
+        errors.push({ errorName: 'email', message: emailError });
+    } else {
+        try {
+            const res = await getUsersByEmail(email.trim());
+            const duplicate = res.data.find((u) => Number(u.id) !== Number(userId));
+            if (duplicate) {
+                errors.push({ errorName: 'email', message: 'Email đã được sử dụng bởi tài khoản khác' });
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    if (phoneError) {
+        errors.push({ errorName: 'phone', message: phoneError });
+    } else {
+        try {
+            const res = await getUsersByPhoneNumber(phoneNumber.trim());
+            const duplicate = res.data.find((u) => Number(u.id) !== Number(userId));
+            if (duplicate) {
+                errors.push({ errorName: 'phone', message: 'Số điện thoại đã được sử dụng bởi tài khoản khác' });
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    const isChangingPassword = newPassword.trim().length > 0 || confirmPassword.trim().length > 0;
+
+    if (isChangingPassword) {
+        if (!oldPassword.trim()) {
+            errors.push({ errorName: 'oldPassword', message: 'Vui lòng nhập mật khẩu cũ' });
+        } else if (oldPassword !== currentPassword) {
+            errors.push({ errorName: 'oldPassword', message: 'Mật khẩu cũ không đúng' });
+        }
+
+        const newPasswordError = validatePassword(newPassword);
+        if (newPasswordError) {
+            errors.push({ errorName: 'newPassword', message: newPasswordError });
+        }
+
+        const confirmPasswordError = validateConfirmPassword(newPassword, confirmPassword);
+        if (confirmPasswordError) {
+            errors.push({ errorName: 'confirmPassword', message: confirmPasswordError });
+        }
+    }
+
+    return errors;
+};
