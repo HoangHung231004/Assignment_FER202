@@ -102,7 +102,7 @@ const SettingProfile = () => {
     }
 
     return (
-        <div className="container p-4">
+        <div className="container-fluid px-2 px-md-4 py-3">
             <h4 className="fw-bold mb-4">Cài đặt tài khoản</h4>
 
             {errors.map((er) => er.errorName === 'fetch' || er.errorName === 'update'
@@ -111,7 +111,7 @@ const SettingProfile = () => {
             {success && <div className="alert alert-success">{success}</div>}
 
             <Row className="g-4">
-                <Col lg={6}>
+                <Col xs={12} lg={6}>
                     <div className="border rounded p-4 bg-white">
                         <h5 className="fw-bold mb-3">Cập nhật thông tin</h5>
                         <form onSubmit={handleUpdate}>
@@ -162,7 +162,7 @@ const SettingProfile = () => {
                     </div>
                 </Col>
 
-                <Col lg={6}>
+                <Col xs={12} lg={6}>
                     <div className="border rounded p-4 bg-light">
                         <h5 className="fw-bold mb-3">Thông tin hiện tại</h5>
                         {profile ? (

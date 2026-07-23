@@ -83,7 +83,7 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
 
     return (
         <div className="mt-3 p-0 work-space-contact border">
-            <div className="container mt-3 mb-2">
+            <div className="px-3 mt-3 mb-2">
                 <h5 className="fw-bold">Thùng rác</h5>
                 <p className="text-muted mb-0">Các liên hệ đã xóa. Nhấn khôi phục để đưa trở lại danh bạ, hoặc xóa hoàn toàn để không thể khôi phục.</p>
                 {error && (
@@ -92,8 +92,9 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                     </div>
                 )}
             </div>
-            <div className="container">
-                <table className="table table-stripped table-data mt-3">
+            <div className="px-2 px-md-3">
+                <div className="table-responsive">
+                <table className="table table-stripped table-data mt-3 mb-0">
                     <thead className="table-primary">
                         <tr>
                             <th>#</th>
@@ -121,22 +122,22 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                                     <td>{contact.email}</td>
                                     <td>{formatGroup(contact.groupId)}</td>
                                     <td className="text-center">{formatDate(contact.deletedAt || contact.updatedAt)}</td>
-                                    <td className="d-flex gap-2">
+                                    <td className="table-actions flex-wrap">
                                         <button
-                                            className="btn btn-outline-success"
+                                            className="btn btn-outline-success btn-action"
                                             disabled={loading}
                                             onClick={() => handleRestore(contact)}
                                         >
                                             <i className="bi bi-arrow-counterclockwise me-1"></i>
-                                            Khôi phục
+                                            <span className="d-none d-md-inline">Khôi phục</span>
                                         </button>
                                         <button
-                                            className="btn btn-outline-danger"
+                                            className="btn btn-outline-danger btn-action"
                                             disabled={loading}
                                             onClick={() => openPermanentDelete(contact)}
                                         >
                                             <i className="bi bi-trash me-1"></i>
-                                            Xóa hoàn toàn
+                                            <span className="d-none d-md-inline">Xóa</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -144,6 +145,7 @@ const TableTrash = ({ trashContacts, contactsRaw, setReload }) => {
                         )}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <Modal

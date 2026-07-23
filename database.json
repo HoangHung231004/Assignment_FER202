@@ -42,6 +42,19 @@
       "id": 1,
       "data": [
         {
+          "id": 3,
+          "fullName": "Nguyễn Văn A                              ",
+          "phoneNumber": [
+            "0912345679",
+            "0323456789"
+          ],
+          "email": "student@gmail.com",
+          "groupId": 2,
+          "isFavourite": 0,
+          "createdAt": "2026-07-20T09:59:20.891Z",
+          "updatedAt": "2026-07-23T06:26:08.668Z"
+        },
+        {
           "id": 2,
           "fullName": "Trần Thị Bìnhadsfsdaf",
           "phoneNumber": [
@@ -53,7 +66,7 @@
           "groupId": 2,
           "isFavourite": 0,
           "createdAt": "2026-07-12T18:10:00.000Z",
-          "updatedAt": "2026-07-20T10:05:37.032Z"
+          "updatedAt": "2026-07-23T06:26:09.658Z"
         },
         {
           "id": 4,
@@ -66,20 +79,146 @@
           "groupId": 3,
           "isFavourite": 0,
           "createdAt": "2026-07-20T09:59:31.905Z",
-          "updatedAt": "2026-07-20T10:05:36.265Z"
+          "updatedAt": "2026-07-23T06:26:10.421Z"
         }
       ]
     },
     {
       "id": 2,
-      "data": []
+      "data": [
+        {
+          "id": 1,
+          "fullName": "Nguyễn Văn A                              ",
+          "phoneNumber": [
+            "0912345679",
+            "0323456789"
+          ],
+          "email": "student@gmail.com",
+          "groupId": 2,
+          "isFavourite": 0,
+          "createdAt": "2026-07-23T06:31:53.865Z",
+          "updatedAt": "2026-07-23T06:31:53.865Z"
+        },
+        {
+          "id": 2,
+          "fullName": "Trần Thị Bìnhadsfsdaf",
+          "phoneNumber": [
+            "0912345678",
+            "0912345673",
+            "0912345677"
+          ],
+          "email": "tranthibinh@gmail.com",
+          "groupId": 2,
+          "isFavourite": 0,
+          "createdAt": "2026-07-23T06:31:53.865Z",
+          "updatedAt": "2026-07-23T06:31:53.865Z"
+        },
+        {
+          "id": 3,
+          "fullName": "aasdfbbc",
+          "phoneNumber": [
+            "0912345671",
+            "0323456782"
+          ],
+          "email": "nguyenan334@gmail.com",
+          "groupId": 3,
+          "isFavourite": 0,
+          "createdAt": "2026-07-23T06:31:53.865Z",
+          "updatedAt": "2026-07-23T06:31:53.865Z"
+        }
+      ]
     }
   ],
   "trash": [
     {
       "id": 1,
       "userId": 1,
+      "data": []
+    },
+    {
+      "id": 2,
+      "userId": 2,
       "data": [
+        {
+          "id": 1,
+          "fullName": "Trần Thị Bìnhadsfsdaf",
+          "phoneNumber": [
+            "0912345678",
+            "0912345673",
+            "0912345677"
+          ],
+          "email": "tranthibinh@gmail.com",
+          "groupId": 2,
+          "isFavourite": 0,
+          "createdAt": "2026-07-23T06:22:07.998Z",
+          "updatedAt": "2026-07-23T06:22:07.998Z",
+          "deletedAt": "2026-07-23T06:26:19.363Z"
+        },
+        {
+          "id": 2,
+          "fullName": "aasdfbbc",
+          "phoneNumber": [
+            "0912345671",
+            "0323456782"
+          ],
+          "email": "nguyenan334@gmail.com",
+          "groupId": 3,
+          "isFavourite": 0,
+          "createdAt": "2026-07-23T06:22:07.998Z",
+          "updatedAt": "2026-07-23T06:22:07.998Z",
+          "deletedAt": "2026-07-23T06:26:21.044Z"
+        }
+      ]
+    }
+  ],
+  "shares": [
+    {
+      "fromUserId": 1,
+      "fromUserName": "Nguyễn Văn A",
+      "toUserId": 2,
+      "toEmail": "tranthibinh@gmail.com",
+      "status": "accepted",
+      "contacts": [],
+      "createdAt": "2026-07-23T06:20:16.228Z",
+      "id": 1
+    },
+    {
+      "fromUserId": 1,
+      "fromUserName": "Nguyễn Văn A",
+      "toUserId": 2,
+      "toEmail": "tranthibinh@gmail.com",
+      "status": "rejected",
+      "contacts": [],
+      "createdAt": "2026-07-23T06:30:57.888Z",
+      "id": 2
+    },
+    {
+      "fromUserId": 1,
+      "fromUserName": "Nguyễn Văn A",
+      "toUserId": 2,
+      "toEmail": "tranthibinh@gmail.com",
+      "status": "accepted",
+      "contacts": [],
+      "createdAt": "2026-07-23T06:31:28.677Z",
+      "id": 3
+    },
+    {
+      "fromUserId": 1,
+      "fromUserName": "Nguyễn Văn A",
+      "toUserId": 2,
+      "toEmail": "tranthibinh@gmail.com",
+      "status": "rejected",
+      "contacts": [],
+      "createdAt": "2026-07-23T06:32:06.418Z",
+      "id": 4
+    },
+    {
+      "fromUserId": 1,
+      "fromUserName": "Nguyễn Văn A",
+      "toUserId": 2,
+      "toEmail": "tranthibinh@gmail.com",
+      "status": "pending",
+      "contacts": [
         {
           "id": 3,
           "fullName": "Nguyễn Văn A                              ",
@@ -91,16 +230,38 @@
           "groupId": 2,
           "isFavourite": 0,
           "createdAt": "2026-07-20T09:59:20.891Z",
-          "updatedAt": "2026-07-20T09:59:20.891Z",
-          "deletedAt": "2026-07-20T09:59:38.143Z"
+          "updatedAt": "2026-07-23T06:26:08.668Z"
+        },
+        {
+          "id": 2,
+          "fullName": "Trần Thị Bìnhadsfsdaf",
+          "phoneNumber": [
+            "0912345678",
+            "0912345673",
+            "0912345677"
+          ],
+          "email": "tranthibinh@gmail.com",
+          "groupId": 2,
+          "isFavourite": 0,
+          "createdAt": "2026-07-12T18:10:00.000Z",
+          "updatedAt": "2026-07-23T06:26:09.658Z"
+        },
+        {
+          "id": 4,
+          "fullName": "aasdfbbc",
+          "phoneNumber": [
+            "0912345671",
+            "0323456782"
+          ],
+          "email": "nguyenan334@gmail.com",
+          "groupId": 3,
+          "isFavourite": 0,
+          "createdAt": "2026-07-20T09:59:31.905Z",
+          "updatedAt": "2026-07-23T06:26:10.421Z"
         }
-      ]
-    },
-    {
-      "id": 2,
-      "userId": 2,
-      "data": []
+      ],
+      "createdAt": "2026-07-23T06:32:41.007Z",
+      "id": 5
     }
-  ],
-  "shares": []
+  ]
 }

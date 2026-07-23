@@ -122,21 +122,21 @@ const TableContact = ({
     return (
         <div className="mt-3 p-0 work-space-contact border">
             {error && (
-                <div className="container mt-3 mb-0">
+                <div className="px-3 mt-3 mb-0">
                     <div className="alert alert-danger mb-0" role="alert">
                         {error}
                     </div>
                 </div>
             )}
             {/* ____Filter */}
-            <div className="d-flex align-item-baseline filter-space container">
+            <div className="filter-space">
                 {/*____Group */}
                 <div className="filter-item">
                     <select className="form-select"
                         value={selectedGroup}
                         onChange={(e) => setSelectedGroup(e.target.value)}>
                         <option value={'all'}>Tất cả nhóm</option>
-                        {groups.map((gr) => <option value={gr.id}>{gr.name}</option>)}
+                        {groups.map((gr) => <option key={gr.id} value={gr.id}>{gr.name}</option>)}
                     </select>
                 </div>
                 {/*___ favourite _________ */}
@@ -150,48 +150,51 @@ const TableContact = ({
                     </select>
                 </div>
                 {/*___Search by name OR email____*/}
-                <div className="filter-item">
+                <div className="filter-item filter-item--search">
                     <input type="text" className="form-control"
-                        placeholder="Search by NAME or EMAIL"
+                        placeholder="Tìm theo tên hoặc email"
                         value={searchName}
                         onChange={(e) => setSearchName(e.target.value)} />
                 </div>
                 {/*__Reset */}
-                <div className="filter-item">
+                <div className="filter-item filter-item--actions">
                     <button
                         type="button"
-                        className="w-75 btn btn-danger btn-outline-black text-center d-flex justify-content-center align-items-center px-3"
+                        className="btn btn-danger btn-outline-black btn-action d-flex justify-content-center align-items-center"
                         onClick={() => {
                             onResetFilters()
                             setSelectedContactIds([])
                         }}
                         title="Reset bộ lọc"
                     >
-                        <i className="p-0 m-0 bi bi-arrow-repeat"></i>
+                        <i className="bi bi-arrow-repeat"></i>
                     </button>
                 </div>
                 {/*__Share Contact */}
-                <div className="filter-item">
+                <div className="filter-item filter-item--actions">
                     <button
-                        className="btn btn-outline-success d-flex justify-content-center align-items-center gap-2"
+                        className="btn btn-outline-success btn-action d-flex justify-content-center align-items-center gap-2"
                         disabled={selectedContactIds.length === 0}
                         onClick={() => setIsOpenModalShare(true)}
                     >
-                        <div className="fw-bold">Chia sẻ ({selectedContactIds.length})</div>
-                        <i className="bi bi-share" style={{ fontSize: '24px' }}></i>
+                        <span className="fw-bold">Chia sẻ ({selectedContactIds.length})</span>
+                        <i className="bi bi-share"></i>
                     </button>
                 </div>
                 {/*__Add Contact */}
-                <div className="filter-item">
-                    <button className="btn  btn-outline-primary d-flex justify-content-center align-items-center gap-3"
-                        onClick={() => handleAddContact()}>
-                        <div className="fw-bold">Thêm liên hệ</div>  <i className="bi bi-journal-plus" style={{ fontSize: '30px' }}></i>
+                <div className="filter-item filter-item--actions">
+                    <button
+                        className="btn btn-outline-primary btn-action d-flex justify-content-center align-items-center gap-2"
+                        onClick={() => handleAddContact()}
+                    >
+                        <span className="fw-bold">Thêm liên hệ</span>
+                        <i className="bi bi-journal-plus"></i>
                     </button>
                 </div>
             </div>
-            {/* <hr /> */}
-            <div className="container">
-                <table className="table table-stripped table-data mt-3">
+            <div className="px-2 px-md-3">
+                <div className="table-responsive">
+                <table className="table table-stripped table-data mt-3 mb-0">
                     <thead className="table-primary">
                         <tr>
                             <th>
@@ -226,7 +229,7 @@ const TableContact = ({
                                     </td>
                                     <td className="fw-bold">{contact.id}</td>
                                     <td>{contact.fullName}</td>
-                                    <td>{contact.phoneNumber.map((phone) => <div>{phone}</div>)}</td>
+                                    <td>{(Array.isArray(contact.phoneNumber) ? contact.phoneNumber : [contact.phoneNumber]).filter(Boolean).map((phone) => <div key={phone}>{phone}</div>)}</td>
                                     <td>{contact.email}</td>
                                     <td>{formatGroup(contact.groupId)}</td>
                                     <td className="text-center">
@@ -239,16 +242,16 @@ const TableContact = ({
                                                 onClick={() => handleChangeStar(contact)}></i>}
                                     </td>
                                     <td className="text-center">{formatDate(contact.createdAt)}</td>
-                                    <td className="d-flex" >
+                                    <td className="table-actions">
                                         {/*_____Edit button */}
-                                        <button className="w-50 h-50 btn btn-outline-warning" style={{ color: 'black' }}
+                                        <button className="btn btn-outline-warning" style={{ color: 'black' }}
                                             onClick={() => handleEdit(contact)}>
-                                            <i className="bi bi-pencil p-0"></i>
+                                            <i className="bi bi-pencil"></i>
                                         </button>
                                         {/*_____Delete button */}
-                                        <button className="w-50 h-50 btn btn-outline-danger"
+                                        <button className="btn btn-outline-danger"
                                             onClick={() => handleDelete(contact)}>
-                                            <i className="bi bi-trash p-0"></i>
+                                            <i className="bi bi-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -256,18 +259,18 @@ const TableContact = ({
                         })}
                     </tbody>
                 </table>
-                <div>
-                    <Pagination className="d-flex justify-content-center">
-                        <Pagination.Item disabled={currentPage === 1 ? true : false} onClick={() => setCurrentPage((prev) => prev - 1)}>
+                </div>
+                <div className="py-3">
+                    <Pagination className="d-flex flex-wrap justify-content-center mb-0">
+                        <Pagination.Item disabled={currentPage === 1} onClick={() => setCurrentPage((prev) => prev - 1)}>
                             <i className="bi bi-arrow-left"></i>
                         </Pagination.Item>
-                        {itemsPagination.map((item) => {
-                            return (
-                                <Pagination.Item active={currentPage === item} onClick={() => setCurrentPage(item)}>
-                                    {item}
-                                </Pagination.Item>)
-                        })}
-                        <Pagination.Item disabled={currentPage === itemsPagination.length ? true : false} onClick={() => setCurrentPage((prev) => prev + 1)}>
+                        {itemsPagination.map((item) => (
+                            <Pagination.Item key={item} active={currentPage === item} onClick={() => setCurrentPage(item)}>
+                                {item}
+                            </Pagination.Item>
+                        ))}
+                        <Pagination.Item disabled={currentPage === itemsPagination.length || itemsPagination.length === 0} onClick={() => setCurrentPage((prev) => prev + 1)}>
                             <i className="bi bi-arrow-right"></i>
                         </Pagination.Item>
                     </Pagination>

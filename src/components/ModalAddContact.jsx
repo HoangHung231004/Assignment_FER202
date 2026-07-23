@@ -120,11 +120,11 @@ const ModalAddContact = ({ isOpenAddContactModal, setIsOpenAddContactModal, setR
                         <tr>
                             <td>
                                 <div className='fw-bold'>Phân loại quan hệ</div>
-                                <div className='d-flex'>
-                                    <button type="button" className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(1)}>Gia đình</button>
-                                    <button type="button" className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(2)}>Bạn bè</button>
-                                    <button type="button" className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(3)}>Công việc</button>
-                                    <button type="button" className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`} w-25 text-center`} onClick={() => setGroupId(4)}>Khác</button>
+                                <div className='modal-group-buttons'>
+                                    <button type="button" className={`btn ${groupId === 1 ? `btn-primary` : `btn-outline-dark`}`} onClick={() => setGroupId(1)}>Gia đình</button>
+                                    <button type="button" className={`btn ${groupId === 2 ? `btn-success` : `btn-outline-dark`}`} onClick={() => setGroupId(2)}>Bạn bè</button>
+                                    <button type="button" className={`btn ${groupId === 3 ? `btn-warning` : `btn-outline-dark`}`} onClick={() => setGroupId(3)}>Công việc</button>
+                                    <button type="button" className={`btn ${groupId === 4 ? `btn-dark` : `btn-outline-dark`}`} onClick={() => setGroupId(4)}>Khác</button>
                                 </div>
                             </td>
                         </tr>

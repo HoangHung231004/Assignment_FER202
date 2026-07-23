@@ -5,72 +5,66 @@ const ITEM_SELECTED = {
     color: 'white'
 }
 
-const Tabbar = () => {
+const Tabbar = ({ onItemClick }) => {
     const [searchParams, setSearchParams] = useSearchParams()
     const tab = searchParams.get("tab")
 
     const navigate = useNavigate()
 
-    const handleLogOut = () => {
-        localStorage.clear();
-        navigate('/')
+    const handleTabChange = (tabName) => {
+        setSearchParams(`tab=${tabName}`)
+        onItemClick?.()
     }
+
+    const handleLogOut = () => {
+        localStorage.clear()
+        navigate('/')
+        onItemClick?.()
+    }
+
     return (
-        <div className="mt-3">
-            <div className="d-flex">
+        <div className="tabbar-root">
+            <div className="tabbar-brand">
                 <div className="brand-logo">
                     <i className="bi bi-people-fill"></i>
                 </div>
-                <span className="brand-name text-center ms-3">Contact Manager</span>
+                <span className="brand-name">Contact Manager</span>
             </div>
-            {/*________Danh bạ__________________________ */}
-            <div className="tabbar_item mt-4" style={tab === 'contacts' ? ITEM_SELECTED : {}}
-                onClick={() => setSearchParams("tab=contacts")}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-person"></i>
-                </div>
+
+            <div
+                className="tabbar_item mt-3 mt-lg-4"
+                style={tab === 'contacts' || !tab ? ITEM_SELECTED : {}}
+                onClick={() => handleTabChange('contacts')}
+            >
+                <i className="tabbar_item_logo bi bi-person"></i>
                 <span className="text-item-logo">Danh bạ</span>
             </div>
-            {/*________Nhóm__________________________ */}
-            {/* <div className="tabbar_item" style={tab === 'groups' ? ITEM_SELECTED : {}}
-                onClick={() => setSearchParams("tab=groups")}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-folder"></i>
-                </div>
-                <span className="text-item-logo">Nhóm</span>
-            </div> */}
-            {/*________Yêu Thích__________________________ */}
-            {/* <div className="tabbar_item" style={tab === 'favourite' ? ITEM_SELECTED : {}}
-                onClick={() => setSearchParams("tab=favourite")}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-bookmark-star"></i>
-                </div>
-                <span className="text-item-logo">Yêu thích</span>
-            </div> */}
-            {/*________Thùng rác__________________________ */}
-            <div className="tabbar_item" style={tab === 'trash' ? ITEM_SELECTED : {}}
-                onClick={() => setSearchParams("tab=trash")}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-trash"></i>
-                </div>
+
+            <div
+                className="tabbar_item"
+                style={tab === 'trash' ? ITEM_SELECTED : {}}
+                onClick={() => handleTabChange('trash')}
+            >
+                <i className="tabbar_item_logo bi bi-trash"></i>
                 <span className="text-item-logo">Thùng rác</span>
             </div>
-            <hr />
-            <div className="tabbar_item" style={tab === 'setting' ? ITEM_SELECTED : {}}
-                onClick={() => setSearchParams("tab=setting")}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-gear"></i>
-                </div>
+
+            <hr className="my-2" />
+
+            <div
+                className="tabbar_item"
+                style={tab === 'setting' ? ITEM_SELECTED : {}}
+                onClick={() => handleTabChange('setting')}
+            >
+                <i className="tabbar_item_logo bi bi-gear"></i>
                 <span className="text-item-logo">Cài đặt</span>
             </div>
 
-            <div className="tabbar_item" onClick={() => handleLogOut()}>
-                <div>
-                    <i className="tabbar_item_logo bi bi-box-arrow-left"></i>
-                </div>
+            <div className="tabbar_item" onClick={handleLogOut}>
+                <i className="tabbar_item_logo bi bi-box-arrow-left"></i>
                 <span className="text-item-logo">Đăng xuất</span>
             </div>
-        </div >
+        </div>
     )
 }
 

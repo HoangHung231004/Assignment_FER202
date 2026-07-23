@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import Header from "../layout/Header"
 import Footer from "../layout/Footer"
-import { Col, Form, Row } from "react-bootstrap"
+import { Form } from "react-bootstrap"
 import InputEmail from "../components/InputEmail"
 import InputPassword from "../components/InputPassword"
 import InputFullName from "../components/InputFullName"
@@ -114,101 +114,84 @@ const RegisterPage = () => {
 
 
     return (
-        <div>
-            {/* Header */}
-            <Header></Header>
+        <div className="page-with-header-footer">
+            <Header />
 
-            {/* Register Form */}
-            <Col lg={12} md={12} xs={12} className="mt-5
-            d-flex justify-content-center align-items-center"
-            >
-                <div className="border container px-4 py-1"
-                    style={
-                        {
-                            marginTop: '2%',
-                            width: 'auto',
-                            height: 'auto',
-                            borderRadius: '10px'
-                        }
-                    }>
-                    {/* ___Image__________________________________________________ */}
-                    <Row className="d-flex justify-content-center py-3">
-                        <img src='userImage.jpg'
-                            style={
-                                {
-                                    width: '10%',
-                                    height: 'auto',
-                                    borderRadius: '50px'
-                                }
-                            }></img>
-                    </Row>
-                    <h2 className="text-center">Đăng ký tài khoản</h2>
-                    <div className="text-center">Tạo tài khoản mới để bắt đầu quản lý danh bạ của bạn</div>
-                    {/*____Register Form____________________________________________ */}
-                    <Form onSubmit={register}>
-                        {/*____Full Name________________________________________________ */}
-                        <InputFullName
-                            fullName={fullName}
-                            setFullName={setFullName}
-                            // isRegister to show 'Trở lại trang chủ =))))'
-                            isRegister={true}></InputFullName>
-                        {errors.map((err) => err.errorName === 'fullName' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*____Email__________________________________________________ */}
-                        <InputEmail
-                            isLogin={false}
-                            email={email}
-                            setEmail={setEmail}></InputEmail>
-                        {errors.map((err) => err.errorName === 'email' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*____Phone Number_____________________________________________ */}
-                        <InputPhoneNumber
-                            phoneNumber={phoneNumber}
-                            setPhoneNumber={setPhoneNumber}
-                        ></InputPhoneNumber>
-                        {errors.map((err) => err.errorName === 'phoneNumber' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*____Password________________________________________________*/}
-                        <InputPassword
-                            isLogin={false}
-                            password={password}
-                            setPassword={setPassword}
-                            showPassword={showPassword}
-                            setShowPassword={setShowPassword}></InputPassword>
-                        {errors.map((err) => err.errorName === 'password' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*___Confirm Password_________________________________________*/}
-                        <InputConfirmPassword
-                            confirmPassword={confirmPassword}
-                            setConfirmPassword={setConfirmPassword}
-                            showConfirmPassword={showConfirmPassword}
-                            setShowConfirmPassword={setShowConfirmPassword}></InputConfirmPassword>
-                        {errors.map((err) => err.errorName === 'confirmPassword' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*____Option___________________________________________________ */}
-                        <Row className="mt-3">
-                            <div className="d-flex justify-content-baseline gap-2">
-                                <input type="checkbox" className="form-check"
+            <div className="container-fluid px-3 d-flex justify-content-center">
+                <div className="auth-form-wrapper">
+                    <div className="border auth-form-card px-4 py-4 w-100">
+                        <div className="d-flex justify-content-center py-2">
+                            <img src="userImage.jpg" className="auth-form-avatar" alt="User" />
+                        </div>
+                        <h2 className="text-center h3">Đăng ký tài khoản</h2>
+                        <p className="text-center text-muted">Tạo tài khoản mới để bắt đầu quản lý danh bạ của bạn</p>
+
+                        <Form onSubmit={register}>
+                            <InputFullName
+                                fullName={fullName}
+                                setFullName={setFullName}
+                                isRegister={true}></InputFullName>
+                            {errors.map((err) => err.errorName === 'fullName' ? <div key="fullName" className="text-danger">{err.message}</div> : null)}
+
+                            <InputEmail
+                                isLogin={false}
+                                email={email}
+                                setEmail={setEmail}></InputEmail>
+                            {errors.map((err) => err.errorName === 'email' ? <div key="email" className="text-danger">{err.message}</div> : null)}
+
+                            <InputPhoneNumber
+                                phoneNumber={phoneNumber}
+                                setPhoneNumber={setPhoneNumber}
+                            ></InputPhoneNumber>
+                            {errors.map((err) => err.errorName === 'phoneNumber' ? <div key="phone" className="text-danger">{err.message}</div> : null)}
+
+                            <InputPassword
+                                isLogin={false}
+                                password={password}
+                                setPassword={setPassword}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}></InputPassword>
+                            {errors.map((err) => err.errorName === 'password' ? <div key="password" className="text-danger">{err.message}</div> : null)}
+
+                            <InputConfirmPassword
+                                confirmPassword={confirmPassword}
+                                setConfirmPassword={setConfirmPassword}
+                                showConfirmPassword={showConfirmPassword}
+                                setShowConfirmPassword={setShowConfirmPassword}></InputConfirmPassword>
+                            {errors.map((err) => err.errorName === 'confirmPassword' ? <div key="confirm" className="text-danger">{err.message}</div> : null)}
+
+                            <div className="d-flex align-items-start gap-2 mt-3">
+                                <input
+                                    type="checkbox"
+                                    className="form-check-input mt-1"
+                                    id="accept-policy"
                                     checked={isAcceptPolicy}
-                                    onChange={() => setIsAcceptPolicy((prev) => !prev)}></input>
-                                <label>Tôi đồng ý với <Link to={TERM_OF_USE}>Điều khoản sử dụng</Link> và <Link to={PRIVACY_POLICY}>Chính sách bảo mật</Link></label>
+                                    onChange={() => setIsAcceptPolicy((prev) => !prev)}
+                                />
+                                <label htmlFor="accept-policy" className="small">
+                                    Tôi đồng ý với <Link to={TERM_OF_USE}>Điều khoản sử dụng</Link> và <Link to={PRIVACY_POLICY}>Chính sách bảo mật</Link>
+                                </label>
                             </div>
-                        </Row>
-                        {errors.map((err) => err.errorName === 'policy' ? <div className="text-danger">{err.message}</div> : '')}
-                        {/*__Register Button */}
-                        <Row className="mt-3 px-2">
-                            <button className="btn btn-primary"
-                                type="submit">Đăng ký</button>
-                        </Row>
-                        {errors.map((err) => err.errorName === 'register' ? <div className="text-danger">{err.message}</div> : '')}
-                    </Form>
-                    <div className="text-center mt-3 py-0">hoặc</div>
-                    {/*__Register Button */}
-                    <Row className="mt-3 px-2 mb-3">
-                        <button className="btn btn-outline-primary"
-                            onClick={() => navigate('/login')}>Có tài khoản chưa? Có rồi à? Đăng nhập nhé!</button>
-                    </Row>
-                </div>
-            </Col >
+                            {errors.map((err) => err.errorName === 'policy' ? <div key="policy" className="text-danger">{err.message}</div> : null)}
 
-            {/* Footer */}
-            < Footer></Footer >
-        </div >
+                            <button className="btn btn-primary w-100 mt-3" type="submit">Đăng ký</button>
+                            {errors.map((err) => err.errorName === 'register' ? <div key="register" className="text-danger mt-2">{err.message}</div> : null)}
+                        </Form>
+
+                        <div className="text-center mt-3">hoặc</div>
+                        <button
+                            type="button"
+                            className="btn btn-outline-primary w-100 mt-2"
+                            onClick={() => navigate('/login')}
+                        >
+                            Đã có tài khoản? Đăng nhập
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <Footer />
+        </div>
     )
 }
 export default RegisterPage

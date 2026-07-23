@@ -147,7 +147,7 @@ const WorkSpace = () => {
     return (
         <div className="p-0 mt-3">
             {error && (
-                <div className="container mb-3">
+                <div className="px-2 px-md-3 mb-3">
                     <div className="alert alert-danger d-flex align-items-center justify-content-between mb-0" role="alert">
                         <div>
                             <i className="bi bi-exclamation-triangle me-2"></i>

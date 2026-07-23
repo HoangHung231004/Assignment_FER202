@@ -74,83 +74,60 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="">
-            {/* Header */}
-            <Header></Header>
+        <div className="page-with-header-footer">
+            <Header />
 
-            {/* Login Form */}
-            <Col lg={12} md={12} xs={12} className="mt-5
-            d-flex justify-content-center align-items-center"
-            >
-                <div className="border bg-light container px-4 py-4"
-                    style={
-                        {
-                            marginTop: '3%',
-                            width: 'auto',
-                            height: 'auto',
-                            borderRadius: '10px'
-                        }
-                    }>
-                    {/* ___Image__________________________________________________ */}
-                    <Row className="d-flex justify-content-center py-3">
-                        <img src='userImage.jpg'
-                            style={
-                                {
-                                    width: '10%',
-                                    height: 'auto',
-                                    borderRadius: '50px'
-                                }
-                            }></img>
-                    </Row>
-                    <h2 className="text-center">Đăng nhập</h2>
-                    {/*______FROM SUBMIT */}
-                    <Form onSubmit={handleLogin}>
-                        {/*____Email__________________________________________________ */}
-                        <InputEmail
-                            isLogin={true}
-                            email={email}
-                            setEmail={setEmail}></InputEmail>
+            <div className="container-fluid px-3 d-flex justify-content-center">
+                <div className="auth-form-wrapper">
+                    <div className="border bg-light auth-form-card px-4 py-4 w-100">
+                        <div className="d-flex justify-content-center py-3">
+                            <img src="userImage.jpg" className="auth-form-avatar" alt="User" />
+                        </div>
+                        <h2 className="text-center h3">Đăng nhập</h2>
+                        <Form onSubmit={handleLogin}>
+                            <InputEmail
+                                isLogin={true}
+                                email={email}
+                                setEmail={setEmail}></InputEmail>
 
-                        {errors.map((er) => er.errorName === 'email' ? <p className="text-danger">{er.message}</p> : '')}
+                            {errors.map((er) => er.errorName === 'email' ? <p key="email" className="text-danger">{er.message}</p> : null)}
 
-                        {/*____Password________________________________________________*/}
-                        <InputPassword
-                            isLogin={true}
-                            password={password}
-                            setPassword={setPassword}
-                            showPassword={showPassword}
-                            setShowPassword={setShowPassword}></InputPassword>
-                        {errors.map((er) => er.errorName === 'password' ? <p className="text-danger">{er.message}</p> : '')}
-                        {/*____Option___________________________________________________ */}
-                        <Row className="mt-3">
-                            <Col className="d-flex">
-                                <input type="checkbox" id="remember-me" className="form-check"></input>
-                                <label className="ms-2 fw-light" htmlFor="remember-me">Ghi nhớ đăng nhập</label>
-                            </Col>
-                            <Col className="text-end fw-light">
-                                <a href="">Quên mật khẩu?</a>
-                            </Col>
-                        </Row>
-                        {errors.map((err) => err.errorName === 'information' ? <p className="text-danger">{err.message}</p> : '')}
-                        {message && <p className="text-success">{message}</p>}
-                        {/*__Log in Button */}
-                        <Row className="mt-3 px-2">
-                            <button className="btn btn-primary"
-                                type="submit">Đăng nhập</button>
-                        </Row>
-                    </Form>
-                    <div className="text-center mt-3">hoặc</div>
-                    {/*__Register Button */}
-                    <Row className="mt-3 px-2">
-                        <button className="btn btn-outline-primary"
-                            onClick={() => navigate('/register')}>Đăng ký</button>
-                    </Row>
+                            <InputPassword
+                                isLogin={true}
+                                password={password}
+                                setPassword={setPassword}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}></InputPassword>
+                            {errors.map((er) => er.errorName === 'password' ? <p key="password" className="text-danger">{er.message}</p> : null)}
+
+                            <Row className="mt-3 g-2">
+                                <Col xs={12} sm={6} className="d-flex align-items-center">
+                                    <input type="checkbox" id="remember-me" className="form-check-input me-2" />
+                                    <label className="fw-light mb-0" htmlFor="remember-me">Ghi nhớ đăng nhập</label>
+                                </Col>
+                                <Col xs={12} sm={6} className="text-sm-end fw-light">
+                                    <a href="#" onClick={(e) => e.preventDefault()}>Quên mật khẩu?</a>
+                                </Col>
+                            </Row>
+                            {errors.map((err) => err.errorName === 'information' ? <p key="info" className="text-danger">{err.message}</p> : null)}
+                            {message && <p className="text-success">{message}</p>}
+
+                            <button className="btn btn-primary w-100 mt-3" type="submit">Đăng nhập</button>
+                        </Form>
+                        <div className="text-center mt-3">hoặc</div>
+                        <button
+                            type="button"
+                            className="btn btn-outline-primary w-100 mt-2"
+                            onClick={() => navigate('/register')}
+                        >
+                            Đăng ký
+                        </button>
+                    </div>
                 </div>
-            </Col >
+            </div>
 
-            {/* Footer */}
-            < Footer ></Footer >
-        </div >
+            <Footer />
+        </div>
     )
 }
 

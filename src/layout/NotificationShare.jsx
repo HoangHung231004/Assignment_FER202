@@ -2,7 +2,7 @@ const NotificationShare = ({ pendingShares, onOpenShare }) => {
     if (pendingShares.length === 0) return null
 
     return (
-        <div className="container mb-3">
+        <div className="container-fluid px-2 px-md-3 mb-3">
             {pendingShares.map((share) => (
                 <div
                     key={share.id}

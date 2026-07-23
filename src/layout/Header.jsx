@@ -1,21 +1,18 @@
 import { Col, Row } from "react-bootstrap"
-import '../style/styline.css'
 
 const Header = () => {
     return (
-        <>
-            <Row className="fixed-top bg-dark py-3 px-0 m-0 d-flex align-items-center">
-                <Col className=" d-flex justify-content-start align-items-center">
-                    <h5 className="text-danger m-0">Assignment Fer202</h5>
-                </Col>
-                <Col className="d-flex justify-content-center align-items-center">
-                    <h4 className="title text-center text-white m-0">Quản lý danh bạ</h4>
-                </Col>
-                <Col className="d-flex justify-content-end align-items-center">
-                    <h5 className="text-danger m-0">HungHQHE180380</h5>
-                </Col>
-            </Row>
-        </>
+        <Row className="fixed-top bg-dark py-2 py-md-3 px-2 px-md-3 m-0 align-items-center app-header">
+            <Col xs={3} md={3} className="d-flex align-items-center">
+                <h6 className="text-danger m-0 header-side-text">FER202</h6>
+            </Col>
+            <Col xs={6} md={6} className="text-center">
+                <h4 className="title text-white m-0 header-title">Quản lý danh bạ</h4>
+            </Col>
+            <Col xs={3} md={3} className="text-end">
+                <h6 className="text-danger m-0 header-side-text">HE180380</h6>
+            </Col>
+        </Row>
     )
 }
 
